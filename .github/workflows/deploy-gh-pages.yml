@@ -1,0 +1,43 @@
+name: Deploy GitHub Pages site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install markdown
+
+      - name: Build portfolio site
+        run: python .github/scripts/build_portfolio.py
+
+      - name: Deploy site to gh-pages branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan gh-pages
+          git rm -rf . || true
+          cp -R site/. .
+          git add .
+          git commit -m "Deploy GitHub Pages site" || echo "No changes to deploy"
+          git push --force origin gh-pages
