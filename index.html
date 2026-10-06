@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trevor Werbin — Mechanical Engineering Portfolio</title>
+  <meta name="description" content="Portfolio of Trevor Werbin, Mechanical Engineering (Mechatronics Option) student at the University of Waterloo. Hands-on mechanical design, fabrication, and test — from CAD to working hardware.">
+  <meta property="og:title" content="Trevor Werbin — Mechanical Engineering Portfolio">
+  <meta property="og:description" content="Hands-on mechanical design, fabrication, and test — from CAD to working hardware. Projects, experience, and skills.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/img/cookie-machine.png">
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+  <!-- ===================== Header ===================== -->
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="#top" aria-label="Back to top">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z" stroke="#1a5fd6" stroke-width="1.8"/>
+          <path d="M12 2.2v3.4M12 18.4v3.4M2.2 12h3.4M18.4 12h3.4M5.05 5.05l2.4 2.4M16.55 16.55l2.4 2.4M18.95 5.05l-2.4 2.4M7.45 16.55l-2.4 2.4" stroke="#0d1b2e" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        T.&thinsp;WERBIN
+      </a>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="#about">About</a>
+        <a href="#experience">Experience</a>
+        <a href="#projects">Projects</a>
+        <a href="#skills">Skills</a>
+        <a href="#contact">Contact</a>
+        <a class="btn btn-outline btn-sm" href="assets/docs/portfolio.pdf" target="_blank" rel="noopener">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Portfolio PDF
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===================== Hero ===================== -->
+  <section class="hero" id="top">
+    <!-- decorative blueprint schematic -->
+    <svg class="hero-art" viewBox="0 0 420 340" fill="none" aria-hidden="true">
+      <g stroke="#3f6cb2" stroke-width="1.3">
+        <!-- gear body -->
+        <circle cx="210" cy="170" r="74"/>
+        <circle cx="210" cy="170" r="30"/>
+        <circle cx="210" cy="170" r="3.5"/>
+        <!-- teeth -->
+        <path d="M210 96v-14M235 100l6-13M258 112l11-11M274 132l13-6M284 155h14M284 185l14 6M274 208l13 6M258 228l11 11M235 240l6 13M210 244v14M185 240l-6 13M162 228l-11 11M146 208l-13 6M136 185l-14 6M136 155h-14M146 132l-13-6M162 112l-11-11M185 100l-6-13"/>
+        <!-- hub spokes -->
+        <path d="M210 140v-38M210 200v38M180 170h-38M240 170h38"/>
+        <!-- dimension lines -->
+        <path d="M210 30v-8m0 0h0" stroke="#7fa4e8"/>
+        <path d="M96 170h-8" stroke="#7fa4e8"/>
+        <path d="M210 22v-0" stroke="#7fa4e8"/>
+      </g>
+      <!-- dimension callouts -->
+      <g stroke="#5f87cc" stroke-width="1" stroke-dasharray="4 4">
+        <path d="M116 46h188M116 42v8M304 42v8"/>
+        <path d="M46 108v124M42 108h8M42 232h8"/>
+      </g>
+      <g font-family="IBM Plex Mono, monospace" font-size="11" fill="#8fb0e8">
+        <text x="178" y="40">Ø 148.0</text>
+        <text x="18" y="174">74.0</text>
+        <text x="330" y="60">A</text>
+      </g>
+      <g stroke="#5f87cc" stroke-width="1">
+        <path d="M330 70l-4 6h8Z" fill="#5f87cc"/>
+      </g>
+      <!-- crosshair marks -->
+      <g stroke="#3f6cb2" stroke-width="1.2">
+        <path d="M60 60h24M72 48v24M336 276h24M348 264v24"/>
+      </g>
+    </svg>
+
+    <div class="wrap">
+      <div class="hero-eyebrow">Mechanical Engineering Portfolio</div>
+      <h1>Trevor Werbin</h1>
+      <p class="role">
+        <strong>Mechanical Engineering, Mechatronics Option</strong> · University of Waterloo · Class of 2030
+      </p>
+      <p class="pitch">
+        Hands-on design, fabrication, and test — I take projects from CAD to working
+        hardware: parametric modelling, DFM, GD&amp;T drawings, machining, and additive
+        manufacturing, validated with data.
+      </p>
+      <div class="hero-ctas">
+        <a class="btn btn-primary" href="#projects">View Projects
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14m0 0 6-6m-6 6-6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a class="btn btn-ghost" href="assets/docs/portfolio.pdf" target="_blank" rel="noopener">Download Portfolio (PDF)</a>
+        <span class="hero-links">
+          <a href="mailto:twerbin@uwaterloo.ca" title="Email">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="m4 7 8 6 8-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Email
+          </a>
+          <a href="https://www.linkedin.com/in/trevor-werbin" target="_blank" rel="noopener" title="LinkedIn">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29ZM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12ZM7.12 20.45H3.56V9h3.56v11.45Z"/></svg>
+            LinkedIn
+          </a>
+        </span>
+      </div>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat"><div class="num">5 <em>+</em></div><div class="lbl">Design &amp; build projects completed</div></div>
+      <div class="stat"><div class="num">30 N <em>/</em> &lt;1 s</div><div class="lbl">Grip force spec met, actuation time</div></div>
+      <div class="stat"><div class="num">20<em>%</em></div><div class="lbl">Production 3D printer uptime gained at Ciena</div></div>
+      <div class="stat"><div class="num">25 <em>+</em></div><div class="lbl">Production parts released via GD&amp;T drawings &amp; PLM</div></div>
+    </div>
+  </section>
+
+  <!-- ===================== About ===================== -->
+  <section class="section" id="about">
+    <div class="wrap">
+      <div class="sheet-head reveal">
+        <span class="sheet-no">01</span>
+        <h2 class="sheet-title">About</h2>
+        <span class="sheet-rule"></span>
+      </div>
+      <p class="sheet-sub reveal">Who I am, what I study, and how I work.</p>
+
+      <div class="about-grid">
+        <div class="about-copy reveal">
+          <p class="lede">
+            I&rsquo;m a Mechanical Engineering student at the University of Waterloo with
+            hands-on experience in mechanical design, fabrication, and product development.
+          </p>
+          <p>
+            Through my internship at Ciena and my course projects, I&rsquo;ve practised the full
+            iterative design process: parametric CAD, 3D printing, machining, DFM principles,
+            GD&amp;T and technical drawings, and product testing. I like problems where the
+            answer has to exist in the real world — parts that fit, mechanisms that move,
+            and data that says whether it worked.
+          </p>
+          <p>
+            The projects in this portfolio showcase my recent engineering work and how I
+            approach challenges from concept through execution.
+          </p>
+        </div>
+
+        <aside class="info-card reveal">
+          <h3><span class="dot"></span>University of Waterloo</h3>
+          <div class="info-row">
+            <div class="k">Program</div>
+            <div class="v">B.A.Sc. Mechanical Engineering, Mechatronics Option <small>(Sep 2025 – Apr 2030)</small></div>
+          </div>
+          <div class="info-row">
+            <div class="k">Relevant Courses</div>
+            <div class="chips">
+              <span class="chip">Electromechanical Devices</span>
+              <span class="chip">Properties of Materials</span>
+              <span class="chip">Mechanics of Deformable Solids</span>
+              <span class="chip">Adv. Calculus</span>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="k">Design Teams</div>
+            <div class="v">Waterloo Space Rover Design Team <small>(UW Robotics Team)</small></div>
+          </div>
+          <div class="info-row">
+            <div class="k">Awards</div>
+            <ul class="awards">
+              <li>President&rsquo;s Scholarship of Distinction ($5k) — &gt;95% admission average</li>
+              <li>Peter C. Masak Memorial Scholarship ($4k) — Outstanding Mechanical Engineering Student</li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== Experience ===================== -->
+  <section class="section tint" id="experience">
+    <div class="wrap">
+      <div class="sheet-head reveal">
+        <span class="sheet-no">02</span>
+        <h2 class="sheet-title">Experience</h2>
+        <span class="sheet-rule"></span>
+      </div>
+      <p class="sheet-sub reveal">Internship engineering work and professional experience.</p>
+
+      <article class="xp-item reveal">
+        <div class="xp-head">
+          <div>
+            <h3>Mechanical Engineering Intern (R&amp;D) — <span class="org">Ciena Corporation</span></h3>
+            <div class="meta">Ottawa, Ontario · Optical networking hardware R&amp;D</div>
+          </div>
+          <span class="xp-when">May – Aug 2026</span>
+        </div>
+        <ul>
+          <li>Created a <strong>press-fit alignment jig</strong> (PTC Creo) that cut <strong>PCB assembly placement errors by 15%</strong>.</li>
+          <li>Designed &amp; executed a <strong>17-configuration DOE</strong> to characterize product thermal performance for a large customer.</li>
+          <li>Increased <strong>production 3D printer uptime by 20%</strong> and delivered multiple &gt;24&nbsp;hr prints on two <strong>$200k 3D printers</strong> (AON3D Hylo, Stratasys Fortus).</li>
+          <li>Designed modular tool organizers that <strong>cut 3D printer setup/changeover time by 50%</strong>, increasing production volume by 10%.</li>
+          <li>Supported accurate manufacturing of <strong>25 parts</strong> by creating and releasing toleranced, DFM-reviewed <strong>GD&amp;T drawings</strong> via PLM.</li>
+          <li>Designed, updated and replaced parts in <strong>50+ assemblies</strong> with PTC Creo and Windchill.</li>
+        </ul>
+      </article>
+
+      <article class="xp-item reveal">
+        <div class="xp-head">
+          <div>
+            <h3>Administrative Coordinator, Director&rsquo;s Office — <span class="org">Ontario Public Service</span></h3>
+            <div class="meta">Toronto, Ontario · Ministry of Health / Ministry of Children (part-time)</div>
+          </div>
+          <span class="xp-when">Jul 2024 – Aug 2025</span>
+        </div>
+        <ul>
+          <li>Defined <strong>7 process success KPIs</strong> and executed risk assessments for a government project approval system, consulting subject-matter experts.</li>
+          <li>Established a knowledge base of project and human-resource information using SharePoint.</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <!-- ===================== Projects ===================== -->
+  <section class="section" id="projects">
+    <div class="wrap">
+      <div class="sheet-head reveal">
+        <span class="sheet-no">03</span>
+        <h2 class="sheet-title">Projects</h2>
+        <span class="sheet-rule"></span>
+      </div>
+      <p class="sheet-sub reveal">Selected coursework, competition, and independent projects — each taken from concept to a working, tested build. Reports and demo videos included where available.</p>
+
+      <!-- Project 1: Cookie Icing Machine -->
+      <article class="project reveal" id="cookie-icing-machine">
+        <div class="project-body">
+          <div class="project-media">
+            <span class="tick-b"></span>
+            <img src="assets/img/cookie-machine.png" alt="Autonomous cookie icing machine — annotated CAD model and icing dispenser" loading="lazy" width="840" height="600">
+            <video controls preload="metadata" poster="assets/img/cookie-machine.png" width="1024" height="576" aria-label="Cookie icing machine demo video">
+              <source src="assets/video/cookie-demo.mp4" type="video/mp4">
+              Your browser does not support embedded video. <a href="assets/video/cookie-demo.mp4">Download the demo</a>.
+            </video>
+          </div>
+          <div class="project-info">
+            <div class="proj-tag">Project 01 · ME101 Final · Feb – Apr 2026</div>
+            <h3>Autonomous Cookie Icing Machine</h3>
+            <div class="skill-tags">
+              <span class="chip">SolidWorks</span><span class="chip">C++</span><span class="chip">Fabrication</span><span class="chip">DFM</span><span class="chip">Circuits</span><span class="chip">3D Printing</span><span class="chip">Laser Cutting</span>
+            </div>
+            <div class="metrics">
+              <span class="metric"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>&lt; 4 min icing cycle</span>
+              <span class="metric">3 icing colours</span>
+              <span class="metric">4-person team</span>
+            </div>
+            <div class="label">Objective</div>
+            <p class="body">Design, build, and program an autonomous machine that applies a user-designed multi-colour icing pattern to a cookie in under 4 minutes — using at least four 3D-printed or laser-cut parts and at least two VEX IQ motors and sensors.</p>
+            <div class="label">My Contribution</div>
+            <p class="body">I modelled the gantry and icing dispenser in SolidWorks and led most of the fabrication: 3D-printing motor casings and the gantry, and laser-cutting the acrylic racks, baseplate, and enclosure. Facing a motor shortage, I proposed <strong>moving the cookie baseplate instead of the nozzle</strong> — improving icing accuracy and reducing load on the upper motors. Iterative testing also led me to implement plunger logic that prevents failed dispensing from trapped air and icing pooling.</p>
+            <div class="label">Outcome &amp; Learning</div>
+            <p class="body">The machine met every engineering specification. I learned how critical sensor calibration is for reliable autonomous operation — sensors are sensitive and rarely behave exactly as their datasheet promises.</p>
+            <div class="project-links">
+              <a class="btn btn-outline" href="assets/docs/icing-report.pdf" target="_blank" rel="noopener">Design Report (PDF)</a>
+              <a class="btn btn-outline" href="https://github.com/TrevorWerbin/mechanical-portfolio/tree/main/01.%20Autonomous%20Cookie%20Icing%20Machine" target="_blank" rel="noopener">GitHub Folder</a>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Project 2: Mechanical Thumb Toy -->
+      <article class="project proj-alt reveal" id="digit-thumb">
+        <div class="project-body">
+          <div class="project-media">
+            <span class="tick-b"></span>
+            <img src="assets/img/digit.jpg" alt="Digit — wearable actuating mechanical thumb grasping an object" loading="lazy" width="960" height="720">
+            <video controls preload="metadata" poster="assets/img/digit.jpg" width="1920" height="1080" aria-label="Digit mechanical thumb demo video">
+              <source src="assets/video/digit-demo.mp4" type="video/mp4">
+              Your browser does not support embedded video. <a href="assets/video/digit-demo.mp4">Download the demo</a>.
+            </video>
+          </div>
+          <div class="project-info">
+            <div class="proj-tag">Project 02 · ME100 Final · Oct – Dec 2025</div>
+            <h3>Mechanical Thumb Toy — &ldquo;Digit&rdquo;</h3>
+            <div class="skill-tags">
+              <span class="chip">SolidWorks</span><span class="chip">Iterative Design</span><span class="chip">3D Printing</span><span class="chip">Functional Testing</span><span class="chip">Technical Reports</span>
+            </div>
+            <div class="metrics">
+              <span class="metric"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>30 N grip force spec met</span>
+              <span class="metric">&lt; 1 s actuation</span>
+              <span class="metric">3 design iterations</span>
+            </div>
+            <div class="label">Objective</div>
+            <p class="body">Create a mechanically operated toy for the ME100 course final project, applying 3D modelling and machine shop skills through the engineering design process.</p>
+            <div class="label">My Contribution</div>
+            <p class="body">I owned several core mechanical components: the hand-mounting mechanism and the elastic extension mechanism that returns the thumb to neutral. My initial design used a thumb-slide and string for actuation — but testing showed this defeated Digit&rsquo;s purpose as an <em>extra</em> finger, since it occupied the user&rsquo;s own thumb. I transitioned to <strong>wrist-based actuation</strong>, freeing all five fingers while enabling controlled movement of Digit — the configuration we shipped.</p>
+            <div class="label">Outcome &amp; Learning</div>
+            <p class="body">Digit met its 30&nbsp;N grip-force spec with sub-second actuation, and the working prototype was kept by the professor as an example for future students. I learned to build independent mechanical motion paths tied to specific hand movements — preventing wrist rotation from accidentally triggering extension or retraction.</p>
+            <div class="project-links">
+              <a class="btn btn-outline" href="assets/docs/digit-report.pdf" target="_blank" rel="noopener">Design Report (PDF)</a>
+              <a class="btn btn-outline" href="https://github.com/TrevorWerbin/mechanical-portfolio/tree/main/02.%20Mechanical%20Thumb%20Toy" target="_blank" rel="noopener">GitHub Folder</a>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Project 3: Solar Car Canopy -->
+      <article class="project reveal" id="solar-canopy">
+        <div class="project-body">
+          <div class="project-media">
+            <span class="tick-b"></span>
+            <img src="assets/img/canopy.png" alt="Solar car canopy — SolidWorks orthographic views" loading="lazy" width="960" height="720">
+          </div>
+          <div class="project-info">
+            <div class="proj-tag">Project 03 · UW Midnight Sun Team · Sep 2025</div>
+            <h3>Solar Car Canopy Design</h3>
+            <div class="skill-tags">
+              <span class="chip">SolidWorks</span><span class="chip">Surface Modelling</span><span class="chip">Lofting</span><span class="chip">Split Lines</span>
+            </div>
+            <div class="metrics">
+              <span class="metric"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Team-lead approved</span>
+              <span class="metric">Aerodynamics + driver visibility</span>
+            </div>
+            <div class="label">Objective</div>
+            <p class="body">Design a canopy for the solar car as part of the onboarding process for the University of Waterloo Midnight Sun design team — optimizing for aerodynamics and driver visibility.</p>
+            <div class="label">My Contribution</div>
+            <p class="body">I designed and modelled the full canopy in SolidWorks, independently learning surface modelling, lofting, and split-line techniques to produce the aerodynamic form.</p>
+            <div class="label">Outcome &amp; Learning</div>
+            <p class="body">The canopy was approved by the team leads. Beyond the new CAD techniques, I learned how surface models are used to balance competing requirements — drag reduction against visibility and packaging — on a real competition vehicle.</p>
+            <div class="project-links">
+              <a class="btn btn-outline" href="https://github.com/TrevorWerbin/mechanical-portfolio/tree/main/03.%20Solar%20Car%20Canopy%20-%20UW%20Midnight%20Sun%20Team" target="_blank" rel="noopener">GitHub Folder</a>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Project 4: DIY Dynamometer -->
+      <article class="project proj-alt reveal" id="dynamometer">
+        <div class="project-body">
+          <div class="project-media">
+            <span class="tick-b"></span>
+            <img src="assets/img/dynamometer.png" alt="DIY rope brake dynamometer for measuring TT motor torque" loading="lazy" width="1024" height="768">
+          </div>
+          <div class="project-info">
+            <div class="proj-tag">Project 04 · ME100 · Oct 2025</div>
+            <h3>DIY Dynamometer</h3>
+            <div class="skill-tags">
+              <span class="chip">Excel</span><span class="chip">Data Analysis</span><span class="chip">Technical Report Writing</span>
+            </div>
+            <div class="metrics">
+              <span class="metric"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>45% deviation quantified</span>
+              <span class="metric">2 scatter-plot analyses</span>
+              <span class="metric">5-person team</span>
+            </div>
+            <div class="label">Objective</div>
+            <p class="body">Design and build a dynamometer to measure the torque output of a TT motor, using a TETRIX&reg; robotics set plus a switch, breadboard, jumper wires and power supply — with only research we found online to guide the design of either a rope or Prony brake.</p>
+            <div class="label">My Contribution</div>
+            <p class="body">We chose a rope brake for its lower part count, and I designed the final structure — a tall frame giving a wider measurement range than the table-hung alternative. I built the two key analyses in Excel with best-fit lines (elastic force vs. displacement, and torque vs. motor speed) and authored the report section on the torque-speed curve and sources of measurement inaccuracy.</p>
+            <div class="label">Outcome &amp; Learning</div>
+            <p class="body">The team submitted a report evaluating our torque measurements against manufacturer values — quantifying a 45% deviation and identifying its likely sources. I learned how dynamometers work, how to translate research into a physical product, and how to read correlation from graphs.</p>
+            <div class="project-links">
+              <a class="btn btn-outline" href="https://github.com/TrevorWerbin/mechanical-portfolio/tree/main/04.%20DIY%20Dynamometer" target="_blank" rel="noopener">GitHub Folder</a>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Project 5: Spur Gear Keychain -->
+      <article class="project reveal" id="keychain">
+        <div class="project-body">
+          <div class="project-media">
+            <span class="tick-b"></span>
+            <img src="assets/img/keychain.svg" alt="Spur gear keychain — technical drawing" loading="lazy">
+          </div>
+          <div class="project-info">
+            <div class="proj-tag">Project 05 · Machine Shop · Sep 2025</div>
+            <h3>Spur Gear Keychain</h3>
+            <div class="skill-tags">
+              <span class="chip">SolidWorks</span><span class="chip">Lathe</span><span class="chip">3-Axis Mill</span><span class="chip">Drill Press</span><span class="chip">Tapping</span>
+            </div>
+            <div class="metrics">
+              <span class="metric"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>3.5 × 1.25 × 0.5 in</span>
+              <span class="metric">Machined from aluminum stock</span>
+              <span class="metric">4 machine tools</span>
+            </div>
+            <div class="label">Objective</div>
+            <p class="body">Design and fabricate a custom keychain with a freely revolving spur gear.</p>
+            <div class="label">My Contribution</div>
+            <p class="body">I modelled the full assembly in SolidWorks, then machined and assembled it myself using a lathe, 3-axis mill, drill press, and a tap for the internal threads.</p>
+            <div class="label">Outcome &amp; Learning</div>
+            <p class="body">A working, precise part — plus clean machining fundamentals, machine shop safety and etiquette, and how to model a real physical mechanism as a SolidWorks assembly.</p>
+            <div class="project-links">
+              <a class="btn btn-outline" href="https://github.com/TrevorWerbin/mechanical-portfolio/tree/main/05.%20Spur%20Gear%20Key%20Chain" target="_blank" rel="noopener">GitHub Folder</a>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ===================== Skills ===================== -->
+  <section class="section tint" id="skills">
+    <div class="wrap">
+      <div class="sheet-head reveal">
+        <span class="sheet-no">04</span>
+        <h2 class="sheet-title">Skills</h2>
+        <span class="sheet-rule"></span>
+      </div>
+      <p class="sheet-sub reveal">Hardware first.</p>
+
+      <div class="skills-grid">
+        <div class="skill-card reveal">
+          <h3><span class="idx">A</span>Design &amp; CAD</h3>
+          <div class="chips">
+            <span class="chip">PTC Creo</span><span class="chip">SolidWorks</span><span class="chip">AutoCAD</span>
+            <span class="chip">Parametric CAD</span><span class="chip">Surface Modelling</span>
+            <span class="chip">GD&amp;T</span><span class="chip">DFM</span><span class="chip">Tolerance Stack-Ups</span>
+            <span class="chip">FEA</span>
+          </div>
+        </div>
+        <div class="skill-card reveal">
+          <h3><span class="idx">B</span>Fabrication &amp; Manufacturing</h3>
+          <div class="chips">
+            <span class="chip">3D Printing (FDM / SLA)</span><span class="chip">AON3D &amp; Stratasys Production Printers</span>
+            <span class="chip">Machining — Mill, Lathe, Drill Press</span><span class="chip">Laser Cutting</span>
+            <span class="chip">Machine Shop Safety</span><span class="chip">Prototype Assembly</span>
+          </div>
+        </div>
+        <div class="skill-card reveal">
+          <h3><span class="idx">C</span>Data, Test &amp; Documentation</h3>
+          <div class="chips">
+            <span class="chip">Design of Experiments (DOE)</span><span class="chip">Data Analysis</span>
+            <span class="chip">Excel / Google Sheets</span><span class="chip">Test &amp; Validation</span>
+            <span class="chip">Technical Reports</span><span class="chip">Project Management</span>
+          </div>
+        </div>
+        <div class="skill-card reveal">
+          <h3><span class="idx">D</span>Software &amp; Programming</h3>
+          <div class="chips">
+            <span class="chip">MATLAB</span><span class="chip">Python</span><span class="chip">C++</span>
+            <span class="chip">C#</span><span class="chip">PTC Windchill</span><span class="chip">Oracle Agile PLM</span>
+            <span class="chip">HTML</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== Contact ===================== -->
+  <section class="contact" id="contact">
+    <div class="wrap">
+      <div class="hero-eyebrow" style="justify-content:center;">05 · Contact</div>
+      <h2>Let&rsquo;s build something.</h2>
+      <p>
+        I&rsquo;m always open to talking about mechanical design roles, design teams,
+        and hands-on engineering projects.
+      </p>
+      <div class="contact-actions">
+        <a class="btn btn-primary" href="mailto:twerbin@uwaterloo.ca">Email Me</a>
+        <a class="btn btn-ghost" href="https://www.linkedin.com/in/trevor-werbin" target="_blank" rel="noopener">Connect on LinkedIn</a>
+      </div>
+      <div class="contact-card-row">
+        <a class="contact-card" href="mailto:twerbin@uwaterloo.ca">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="m4 7 8 6 8-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          twerbin@uwaterloo.ca
+        </a>
+        <a class="contact-card" href="https://www.linkedin.com/in/trevor-werbin" target="_blank" rel="noopener">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29ZM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12ZM7.12 20.45H3.56V9h3.56v11.45Z"/></svg>
+          linkedin.com/in/trevor-werbin
+        </a>
+        <a class="contact-card" href="https://github.com/TrevorWerbin" target="_blank" rel="noopener">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.53-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.42-2.69 5.39-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.68.8.56A10.52 10.52 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+          github.com/TrevorWerbin
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== Footer ===================== -->
+  <footer class="site-footer">
+    <div class="inner">
+      <span>&copy; 2026 Trevor Werbin · twerbin@uwaterloo.ca</span>
+      <span>Static site · hosted on GitHub Pages</span>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
