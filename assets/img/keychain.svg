@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 720" fill="none" role="img" aria-label="Spur gear keychain technical drawing">
+  <rect width="960" height="720" fill="#0e1c30"/>
+  <!-- faint blueprint grid -->
+  <g stroke="rgba(120,170,255,0.10)" stroke-width="1">
+    <path d="M0 90h960M0 180h960M0 270h960M0 360h960M0 450h960M0 540h960M0 630h960"/>
+    <path d="M120 0v720M240 0v720M360 0v720M480 0v720M600 0v720M720 0v720M840 0v720"/>
+  </g>
+
+  <!-- drawing frame with corner ticks -->
+  <rect x="70" y="50" width="820" height="620" stroke="#5f87cc" stroke-width="1.5"/>
+  <path d="M70 74v-24h24M866 50h24v24M866 670v-24M70 646v24" stroke="#7fa4e8" stroke-width="3" fill="none"/>
+
+  <!-- keychain body: front view (top-left) -->
+  <g stroke="#9db8dd" stroke-width="2.5">
+    <rect x="180" y="150" width="260" height="120" rx="14"/>
+    <circle cx="410" cy="210" r="52" stroke="#cfe0f7"/>
+    <circle cx="410" cy="210" r="26" stroke="#7fa4e8"/>
+    <!-- spur gear teeth (stylized radial ticks) -->
+    <path d="M410 158v-16M437 165l11-12M455 187l16-5M462 210h16M455 233l16 5M437 255l11 12M410 262v16M383 255l-11 12M365 233l-16 5M358 210h-16M365 187l-16-5M383 165l-11-12" stroke="#9db8dd" stroke-width="3" stroke-linecap="round"/>
+    <!-- keyring hole -->
+    <circle cx="205" cy="180" r="14"/>
+  </g>
+  <!-- center marks -->
+  <g stroke="#7fa4e8" stroke-width="1.5" stroke-dasharray="6 5">
+    <path d="M310 120v300M140 210h330"/>
+  </g>
+
+  <!-- dimension: body width -->
+  <g stroke="#7fa4e8" stroke-width="1.3">
+    <path d="M180 96v18M440 96v18M180 105h260"/>
+  </g>
+  <text x="278" y="98" font-family="IBM Plex Mono, monospace" font-size="20" fill="#8fb0e8">3.50</text>
+  <!-- dimension: body height -->
+  <g stroke="#7fa4e8" stroke-width="1.3">
+    <path d="M520 150h18M520 270h18M529 150v120"/>
+  </g>
+  <text x="540" y="215" font-family="IBM Plex Mono, monospace" font-size="20" fill="#8fb0e8">1.25</text>
+  <!-- dimension: thickness -->
+  <g stroke="#7fa4e8" stroke-width="1.3">
+    <path d="M680 130h14M680 214h14M687 130v84"/>
+  </g>
+  <text x="700" y="176" font-family="IBM Plex Mono, monospace" font-size="20" fill="#8fb0e8">0.50 THK</text>
+
+  <!-- side view (bottom) -->
+  <g stroke="#9db8dd" stroke-width="2.5">
+    <rect x="180" y="470" width="330" height="40" rx="8"/>
+    <circle cx="410" cy="490" r="14" stroke="#7fa4e8"/>
+  </g>
+
+  <!-- title block, bottom right -->
+  <g>
+    <rect x="560" y="440" width="330" height="190" stroke="#5f87cc" stroke-width="1.5" fill="rgba(10,21,36,0.6)"/>
+    <path d="M560 500h330M560 560h330M780 440v190M660 500v130" stroke="#5f87cc" stroke-width="1"/>
+    <text x="580" y="478" font-family="IBM Plex Mono, monospace" font-size="17" fill="#c3d4ef">SPUR GEAR KEYCHAIN</text>
+    <text x="580" y="532" font-family="IBM Plex Mono, monospace" font-size="15" fill="#8fb0e8">MATL: 6061 ALUMINUM</text>
+    <text x="580" y="590" font-family="IBM Plex Mono, monospace" font-size="15" fill="#8fb0e8">TOOLS: LATHE · 3-AXIS MILL</text>
+    <text x="580" y="612" font-family="IBM Plex Mono, monospace" font-size="15" fill="#8fb0e8">DRILL PRESS · TAP M4</text>
+    <text x="795" y="532" font-family="IBM Plex Mono, monospace" font-size="15" fill="#8fb0e8">SCALE 2:1</text>
+    <text x="795" y="590" font-family="IBM Plex Mono, monospace" font-size="15" fill="#8fb0e8">SHEET 05</text>
+  </g>
+
+  <!-- section label, top right -->
+  <text x="835" y="80" font-family="IBM Plex Mono, monospace" font-size="15" fill="#8fb0e8" text-anchor="end">DETAIL A — SCALE 2:1</text>
+</svg>

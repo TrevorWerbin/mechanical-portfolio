@@ -1,0 +1,954 @@
+/* ==========================================================================
+   TREVOR WERBIN — THE TOOL CABINET
+   A portfolio you open like a tool chest: click a drawer, the drawer slides
+   toward you, the camera rises to look down into it, and the project card
+   hinges up out of the drawer. Pure CSS 3D — no frameworks, no WebGL.
+   ========================================================================== */
+
+/* ---------- Tokens ---------- */
+:root {
+  --red-hi:   #e2453e;
+  --red:      #c22023;
+  --red-mid:  #b31a1d;
+  --red-deep: #971317;
+  --chrome-hi:#fbfcfd;
+  --chrome:   #ccd2d6;
+  --chrome-lo:#8e979e;
+  --liner:    #232629;
+  --ink:      #241a10;
+  --kraft:    #d9bc92;
+  --tape:     #efece2;
+  --d:        260px;    /* drawer travel / tray depth */
+  --tilt:     -26deg;   /* camera rise when a drawer opens (scene tips toward you) */
+  --oscale:   .84;      /* world scale when open */
+  --fit:      .9;       /* fit-to-viewport scale (closed) */
+}
+
+/* ---------- Base ---------- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { height: 100%; }
+body {
+  height: 100%;
+  margin: 0;
+  background: #3f4348;
+  font-family: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  color: var(--ink);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; display: block; }
+ul { list-style: none; }
+a { color: inherit; }
+
+/* cinematic vignette over the whole shop (fixed, above the 3D scene) */
+body::after {
+  content: "";
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 15;
+  background:
+    radial-gradient(ellipse 130% 95% at 50% 32%, transparent 48%, rgba(13,15,19,.30) 86%, rgba(9,11,14,.5) 100%);
+}
+
+/* measurement / reduced-motion helper: kill transitions instantly */
+body.no-anim *, body.no-anim *::before, body.no-anim *::after {
+  transition: none !important;
+  animation: none !important;
+}
+
+/* ---------- Skip link / focus ---------- */
+.skip {
+  position: fixed; left: 10px; top: -60px; z-index: 100;
+  background: #ffd76a; color: #171310; font: 700 12px "IBM Plex Mono", monospace;
+  letter-spacing: .08em; padding: 9px 14px; border-radius: 4px;
+  transition: top .15s;
+}
+.skip:focus { top: 10px; }
+.drawer-front:focus-visible,
+.ins-close:focus-visible,
+.tag-btn:focus-visible,
+.biz-card a:focus-visible,
+.header-links a:focus-visible,
+.shop-footer a:focus-visible,
+.lb-close:focus-visible {
+  outline: 3px solid #ffd76a; outline-offset: 2px;
+}
+
+/* ---------- Top bar ---------- */
+.shop-header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 16px;
+  padding: 11px 20px;
+  background: linear-gradient(180deg, rgba(12,14,18,.78), rgba(12,14,18,.28) 70%, transparent);
+  color: #eef0f2;
+}
+.brand { display: flex; align-items: center; gap: 10px; font: 700 12px "IBM Plex Mono", monospace; letter-spacing: .18em; }
+.brand-mark { display: inline-flex; color: #f3d0cf; }
+.brand-text em { font-style: normal; font-weight: 500; opacity: .75; margin-left: 10px; letter-spacing: .1em; }
+.header-links { display: flex; gap: 18px; }
+.header-links a {
+  font: 600 11px "IBM Plex Mono", monospace; letter-spacing: .14em;
+  text-decoration: none; color: #e9ecef; opacity: .9;
+  border-bottom: 1px solid rgba(255,255,255,.28); padding-bottom: 2px;
+}
+.header-links a:hover { opacity: 1; border-color: #fff; }
+
+/* ==========================================================================
+   THE STAGE — perspective camera looking into the shop
+   ========================================================================== */
+.stage {
+  position: relative;
+  height: calc(100vh - 34px);
+  min-height: 540px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #565b62 0%, #4b5056 55%, #3f4348 100%);
+  perspective: 1600px;
+  /* fixed (not %-of-height) so projections don't drift with viewport height */
+  perspective-origin: 50% 262px;
+}
+
+/* the whole shop lives in .world; tipping it toward you = the camera rising */
+.world {
+  position: absolute; left: 50%; bottom: 64px;
+  width: 0; height: 0;
+  transform-style: preserve-3d;
+  transform: translateY(0px) rotateX(0deg) scale(var(--fit));
+  transition: transform 1.05s cubic-bezier(.32,.42,.22,1);
+}
+body.drawer-open .world {
+  /* (866px - 100vh) compensates the vh-dependent world anchor so the card
+     top is viewport-independent; --oty is tuned once and holds everywhere */
+  /* --s (per drawer) is the card's world-px extent above the anchor; with
+     the fit term and the 100vh compensation the card top is invariant
+     across viewport sizes and fit scales (target: just under the header) */
+  transform:
+    translateY(calc(var(--s, 900) * var(--fit) * 1px + 162px - 100vh))
+    rotateX(var(--tilt))
+    scale(calc(var(--oscale) * var(--fit)));
+  transition: transform 1s cubic-bezier(.25,.5,.2,1);
+}
+/* framing per drawer (hinge height differs) */
+body[data-open="about"]{ --s: 1074.3; }
+body[data-open="experience"]{ --s: 985.4; }
+body[data-open="cookie-icing-machine"]{ --s: 947.0; }
+body[data-open="digit-thumb"]{ --s: 893.7; }
+body[data-open="solar-canopy"]  { --s: 783.5; --tilt: -24deg; }
+body[data-open="dynamometer"] { --s: 812.1; --tilt: -22deg; }
+body[data-open="keychain"]    { --s: 624.4; --tilt: -20deg; }
+body[data-open="skills"]      { --s: 619.1; --tilt: -17deg; }
+
+/* ==========================================================================
+   THE SHOP — wall & floor
+   ========================================================================== */
+.wall {
+  position: absolute; left: -1700px; top: -1500px;
+  width: 3400px; height: 1500px;
+  transform: translateZ(-560px);
+  background: linear-gradient(180deg, #a2abb4 0%, #98a1aa 46%, #8d96a0 78%, #8399a2 100%);
+}
+.wall-tex {
+  position: absolute; inset: 0;
+  background:
+    /* staggered cinderblock mortar joints (running bond) */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='128'%3E%3Cg stroke='%231c2128' stroke-opacity='.17' stroke-width='2.4' fill='none'%3E%3Cpath d='M0 1h256M0 65h256M0 127h256'/%3E%3Cpath d='M1 0v65M129 0v65M65 65v63M193 65v63'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 256px 128px,
+    /* faint per-block shading */
+    repeating-linear-gradient(180deg, rgba(255,255,255,.045) 0 4px, transparent 4px 64px),
+    /* grime collecting low on the wall */
+    linear-gradient(180deg, rgba(255,255,255,.05) 0 18%, transparent 30%),
+    linear-gradient(0deg, rgba(24,27,32,.22) 0 12%, transparent 34%),
+    /* old water stains */
+    radial-gradient(ellipse 300px 160px at 12% 96%, rgba(52,54,50,.16), transparent 70%),
+    radial-gradient(ellipse 260px 120px at 88% 99%, rgba(52,54,50,.12), transparent 70%);
+}
+/* darker repaint line (wainscot) */
+.wall-tex::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 320px; height: 5px;
+  background: rgba(30,36,44,.18);
+}
+
+/* ----- pegboard (left) ----- */
+.pegboard {
+  position: absolute; left: 640px; top: 635px;
+  width: 360px; height: 470px;
+  background: linear-gradient(180deg, #c19a6b, #b28a5c 60%, #a67f53);
+  border: 10px solid #6e5335;
+  border-radius: 4px;
+  box-shadow:
+    inset 0 0 40px rgba(56,38,20,.35),
+    0 14px 26px -12px rgba(20,24,30,.55);
+  transform: rotate(-.6deg);
+}
+.peg-holes {
+  position: absolute; inset: 8px;
+  background-image: radial-gradient(circle, rgba(40,28,15,.5) 2.1px, transparent 2.7px);
+  background-size: 23px 23px;
+  background-position: 4px 5px;
+}
+.tool { position: absolute; width: 54px; height: 54px; }
+.t-wrench  { left: 40px;  top: 34px; transform: rotate(14deg); }
+.t-driver  { left: 128px; top: 22px; transform: rotate(-4deg); width: 34px; }
+.t-driver2 { left: 188px; top: 30px; transform: rotate(6deg);  width: 30px; }
+.t-hammer  { left: 258px; top: 36px; transform: rotate(-24deg); }
+.t-pliers  { left: 56px;  top: 128px; transform: rotate(-10deg); }
+.t-caliper { left: 168px; top: 132px; transform: rotate(8deg); width: 44px; }
+.tool-outline {
+  position: absolute; border: 2px dashed rgba(46,32,16,.5); border-radius: 4px;
+  background: rgba(46,32,16,.06);
+}
+.o1 { left: 250px; top: 140px; width: 64px; height: 22px; transform: rotate(-6deg); }
+.o2 { left: 52px;  top: 218px; width: 30px; height: 64px; transform: rotate(7deg); }
+
+/* business card = contact, taped to the pegboard */
+.biz-card {
+  position: absolute; left: 50%; bottom: 14px;
+  transform: translateX(-50%) rotate(-2.5deg);
+  width: 300px;
+  background: #f7f4ec;
+  border-radius: 3px;
+  padding: 14px 14px 13px;
+  box-shadow: 0 8px 18px -6px rgba(15,18,24,.6);
+  text-align: center;
+  font: 500 15.5px "IBM Plex Mono", monospace;
+  color: #26201a;
+}
+.biz-card::before, .biz-card::after {   /* masking tape */
+  content: ""; position: absolute; width: 54px; height: 15px;
+  background: rgba(246,241,222,.75);
+  box-shadow: 0 1px 2px rgba(20,16,10,.25);
+}
+.biz-card::before { left: -18px; top: -6px; transform: rotate(-38deg); }
+.biz-card::after  { right: -18px; top: -6px; transform: rotate(38deg); }
+.biz-role { font: 700 12px "IBM Plex Mono", monospace; letter-spacing: .34em; color: #a02424; margin-bottom: 5px; }
+.biz-name { font: 800 20px Archivo, sans-serif; letter-spacing: .02em; margin-bottom: 9px; }
+.biz-card a {
+  display: block; text-decoration: none; color: #26201a;
+  padding: 3px 0; border-bottom: 1px solid rgba(38,32,26,.16);
+}
+.biz-card a:hover { color: #a02424; }
+.biz-pdf { font-weight: 700; color: #a02424 !important; border-bottom: none !important; margin-top: 5px; }
+
+/* ----- wall sign (right of cabinet) ----- */
+.wall-sign {
+  position: absolute; left: 2145px; top: 655px;
+  text-align: right;
+}
+.sign-name {
+  font: 900 88px/0.94 Archivo, sans-serif;
+  letter-spacing: .015em;
+  color: rgba(249,248,244,.95);
+  text-shadow: 0 3px 0 rgba(34,40,48,.28);
+}
+.sign-role {
+  margin-top: 20px;
+  font: 600 17px/1.9 "IBM Plex Mono", monospace;
+  letter-spacing: .18em;
+  color: rgba(28,35,44,.84);
+}
+
+/* painted service-record plate */
+.wall-record {
+  position: absolute; left: 2160px; top: 1040px;
+  border: 3px solid rgba(34,41,50,.44);
+  padding: 17px 22px 15px;
+  background: rgba(152,161,170,.14);
+}
+.rec-title {
+  font: 700 20px "IBM Plex Mono", monospace; letter-spacing: .3em;
+  color: rgba(34,41,50,.78);
+  border-bottom: 2px solid rgba(34,41,50,.3);
+  padding-bottom: 8px; margin-bottom: 10px;
+}
+.wall-record li {
+  font: 500 16.5px/2 "IBM Plex Mono", monospace;
+  color: rgba(30,37,46,.92);
+}
+.wall-record b { color: #9c1c20; font-weight: 700; }
+
+/* taped hint note */
+.wall-note {
+  position: absolute; left: 662px; top: 1150px;
+  transform: rotate(-1.6deg);
+  background: #f4f0e3;
+  padding: 11px 17px 10px;
+  font: 600 15px "IBM Plex Mono", monospace;
+  color: #33302a;
+  box-shadow: 0 6px 14px -6px rgba(15,18,24,.55);
+}
+.wall-note::before {
+  content: ""; position: absolute; left: 50%; top: -8px; transform: translateX(-50%) rotate(-1.5deg);
+  width: 78px; height: 17px; background: rgba(246,241,222,.8);
+  box-shadow: 0 1px 2px rgba(20,16,10,.25);
+}
+.note-arrow { color: #a02424; margin-right: 6px; }
+
+/* ----- shop floor (3D plane toward the viewer) ----- */
+.shop-floor {
+  position: absolute; left: -1700px; top: 0;
+  width: 3400px; height: 1500px;
+  transform: rotateX(90deg);
+  transform-origin: top center;
+  background: linear-gradient(180deg, #6f7379, #7d8186 40%, #868a8f 100%);
+}
+/* floor continuation under/behind the cabinet (plugs the wall seam) */
+.floor-back {
+  position: absolute; left: -1700px; top: 0;
+  width: 3400px; height: 560px;
+  transform: rotateX(-90deg);
+  transform-origin: top center;
+  background: #6b6f74;
+}
+.floor-tex { position: absolute; inset: 0; background:
+  /* concrete speckle noise */
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.30 0 0 0 0 0.32 0 0 0 0 0.33 0 0 0 0.10 0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E"),
+  radial-gradient(ellipse 480px 240px at 28% 16%, rgba(46,48,44,.14), transparent 70%),
+  radial-gradient(ellipse 380px 200px at 74% 30%, rgba(40,42,44,.10), transparent 70%),
+  radial-gradient(ellipse 520px 300px at 55% 90%, rgba(90,92,92,.10), transparent 70%);
+}
+.floor-worn-path {  /* swept path in front of the cabinet */
+  position: absolute; left: 50%; top: 0; transform: translateX(-50%);
+  width: 980px; height: 460px;
+  background: linear-gradient(180deg, rgba(226,228,229,.16), rgba(226,228,229,.05) 70%, transparent);
+  border-radius: 40px;
+}
+.floor-stain { position: absolute; border-radius: 50%; }
+.floor-stain.s1 { left: 18%; top: 170px; width: 150px; height: 60px; background: radial-gradient(ellipse, rgba(26,22,16,.28), transparent 68%); }
+.floor-stain.s2 { left: 71%; top: 96px; width: 210px; height: 84px; background: radial-gradient(ellipse, rgba(26,22,16,.2), transparent 66%); }
+.floor-joint { position: absolute; left: 0; right: 0; height: 3px; background: rgba(40,43,47,.3); box-shadow: 0 1px 0 rgba(255,255,255,.14); }
+.floor-joint.j1 { top: 430px; }
+.floor-joint.j2 { top: 940px; }
+.cab-shadow {
+  position: absolute; left: 50%; top: 4px; transform: translateX(-50%);
+  width: 760px; height: 140px;
+  background: radial-gradient(ellipse at 50% 42%, rgba(10,9,9,.44), transparent 70%);
+}
+.floor-dim {
+  position: absolute; inset: 0; background: #0b0d11; opacity: 0;
+  transition: opacity .9s ease;
+}
+body.drawer-open .floor-dim { opacity: .34; }
+
+/* wall decor fades away while a drawer is open (keeps the header band clear) */
+.wall-sign, .wall-note, .wall-record, .pegboard { transition: opacity .55s ease; }
+body.drawer-open .wall-sign,
+body.drawer-open .wall-note,
+body.drawer-open .wall-record,
+body.drawer-open .pegboard { opacity: 0; pointer-events: none; }
+.side-handle { transition: opacity .55s ease; }
+body.drawer-open .side-handle { opacity: 0; }
+
+/* ==========================================================================
+   THE CABINET
+   ========================================================================== */
+.cabinet {
+  position: absolute; left: -300px; top: -798px;
+  width: 600px; height: 752px;
+  transform-style: preserve-3d;
+}
+
+/* black rubber top mat (visible once the camera rises) */
+.cab-top {
+  position: absolute; left: -10px; right: -10px; bottom: 100%;
+  height: 380px;
+  transform: rotateX(90deg);
+  transform-origin: bottom center;
+  background:
+    radial-gradient(circle 30px at 30% 24%, transparent 0 24px, rgba(94,58,28,.3) 25px 29px, transparent 30px),
+    radial-gradient(ellipse 130px 40px at 70% 70%, rgba(255,255,255,.05), transparent 70%),
+    linear-gradient(180deg, #131417, #1b1c20 60%, #101114);
+  box-shadow: 0 0 44px rgba(5,6,9,.5);
+  border-radius: 3px;
+}
+
+/* base plinth */
+.cab-base {
+  position: absolute; left: -8px; right: -8px; bottom: -8px; height: 12px;
+  background: linear-gradient(180deg, #5c0d10, #38070a);
+  border-radius: 2px;
+}
+
+/* casters — standing on the floor line */
+.caster {
+  position: absolute; bottom: -44px; width: 44px; height: 44px; border-radius: 50%;
+  background: radial-gradient(circle at 36% 32%,
+    #565b63 0 5px, #17191c 6px 15px, #2c3036 16px 19px,
+    #0e0f11 20px 25px, #262a30 26px 33px, #0b0c0e 34px 44px);
+  box-shadow: 0 8px 12px rgba(0,0,0,.45);
+}
+.c-l { left: 52px; }  .c-r { right: 52px; }
+
+/* side push handle, mounted to the cabinet side */
+.side-handle {
+  position: absolute; left: -40px; top: 210px; width: 14px; height: 310px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #7c0f13, #d02a2c 32%, #a41a1e 58%, #640c10);
+  box-shadow: inset 0 1px 2px rgba(255,255,255,.28), 0 4px 9px rgba(0,0,0,.4);
+}
+.side-handle::before, .side-handle::after {  /* chrome end caps */
+  content: ""; position: absolute; left: -4px; right: -4px; height: 30px;
+  border-radius: 7px;
+  background: linear-gradient(90deg, #9aa0a6, #eef0f2 35%, #b9bfc5 55%, #7d848b);
+  box-shadow: 0 2px 4px rgba(0,0,0,.4);
+}
+.side-handle::before { top: -12px; } .side-handle::after { bottom: -12px; }
+/* mounting arms to the cabinet side */
+.sh-mount {
+  position: absolute; right: -26px; width: 28px; height: 9px;
+  background: linear-gradient(180deg, #c8ccd0, #9aa0a6 60%, #767d84);
+  border-radius: 2px;
+  box-shadow: 0 2px 3px rgba(0,0,0,.35);
+}
+.sh-mount.m1 { top: 34px; }
+.sh-mount.m2 { bottom: 34px; }
+
+/* brand plate */
+.brand-plate {
+  position: absolute; top: -2px; right: 16px;
+  transform: translateZ(5px);
+  font: 700 10px Archivo, sans-serif; letter-spacing: .3em;
+  color: #f4f2ec;
+  background: #17181c;
+  padding: 4px 7px 3px 10px;
+  border-radius: 2px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.4);
+}
+
+/* the frame the drawers sit in */
+.cab-frame {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 12px 10px 44px;
+  background: linear-gradient(180deg, #8e1418 0 14px, #6b0e12 14px calc(100% - 48px), #4d0a0d calc(100% - 48px));
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,.22);
+  transform-style: preserve-3d;
+}
+/* the rubber mat's front edge, seen head-on when closed */
+.cab-frame::before {
+  content: ""; position: absolute; top: -7px; left: -10px; right: -10px; height: 7px;
+  background: linear-gradient(180deg, #2c2e33, #131417);
+  border-radius: 2px 2px 0 0;
+  box-shadow: 0 1px 2px rgba(0,0,0,.5);
+}
+
+/* ==========================================================================
+   DRAWERS
+   ========================================================================== */
+.drawer {
+  position: relative;
+  flex: 0 0 auto;
+  transform-style: preserve-3d;
+}
+.d-1 { height: 50px; --ih: 755px; }
+.d-2 { height: 56px; --ih: 680px; }
+.d-3 { height: 70px; --ih: 695px; }
+.d-4 { height: 78px; --ih: 705px; }
+.d-5 { height: 86px; --ih: 615px; }
+.d-6 { height: 94px; --ih: 720px; }
+.d-7 { height: 102px; --ih: 555px; }
+.d-8 { height: 118px; --ih: 625px; }
+
+/* dark interior, seen through an open drawer */
+.drawer-interior {
+  position: absolute; inset: 0;
+  transform: translateZ(-6px);
+  background: linear-gradient(180deg, #160a0c, #0c0507);
+}
+
+/* everything that physically rides the slides */
+.drawer-slider {
+  position: absolute; inset: 0;
+  transform-style: preserve-3d;
+  transform: translateZ(0);
+  transition: transform .55s cubic-bezier(.5,0,.68,.34);
+}
+.drawer.open .drawer-slider {
+  transform: translateZ(var(--d));
+  transition: transform .72s cubic-bezier(.19,.72,.24,1);
+}
+
+/* ----- drawer front face (the button) ----- */
+.drawer-front {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: stretch; justify-content: center;
+  gap: 7px;
+  padding: 7px 26px 10px;
+  transform: translateZ(3px);
+  border: none; cursor: pointer; text-align: left;
+  font-family: inherit;
+  border-radius: 2px;
+  background: linear-gradient(180deg,
+    #e2453e 0%, #cd2724 7%, #c02023 42%, #b31c1f 80%, #971317 100%);
+  box-shadow:
+    inset 0 2px 2px rgba(255,255,255,.22),
+    inset 0 -3px 5px rgba(30,2,3,.42),
+    inset 2px 0 3px rgba(255,255,255,.07),
+    inset -2px 0 3px rgba(0,0,0,.16),
+    0 2px 0 rgba(38,4,5,.55);
+  transition: transform .22s ease, box-shadow .22s ease;
+}
+.drawer-front:hover {
+  transform: translateZ(8px);
+  box-shadow:
+    inset 0 2px 2px rgba(255,255,255,.26),
+    inset 0 -3px 5px rgba(30,2,3,.4),
+    inset 2px 0 3px rgba(255,255,255,.09),
+    inset -2px 0 3px rgba(0,0,0,.14),
+    inset 0 0 0 100px rgba(255,255,255,.05),
+    0 4px 8px rgba(20,2,3,.5);
+}
+
+/* dymo embossed-tape label */
+.dymo {
+  align-self: flex-start;
+  font: 600 12px/1 "IBM Plex Mono", monospace;
+  letter-spacing: .2em;
+  background: var(--tape);
+  color: #171310;
+  padding: 5px 8px 4px 10px;
+  border-radius: 1.5px;
+  transform: rotate(-.6deg);
+  box-shadow:
+    0 2px 3px rgba(24,3,4,.5),
+    inset 0 0 0 1px rgba(0,0,0,.06),
+    inset 0 1px 0 rgba(255,255,255,.7);
+  text-shadow: 0 1px 0 rgba(255,255,255,.5);
+  white-space: nowrap;
+}
+.dymo-sm { font-size: 10px; }
+
+/* full-width chrome bar pull */
+.pull {
+  height: 9px; border-radius: 5px;
+  background: linear-gradient(180deg,
+    #fbfcfd, #ccd2d6 38%, #8e979e 54%, #c4cace 74%, #eef0f2);
+  box-shadow: 0 2px 3px rgba(24,3,4,.55), inset 0 1px 0 #fff;
+}
+
+/* keyed lock on the top drawer */
+.lock {
+  position: absolute; left: 148px; top: 11px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background:
+    radial-gradient(circle 3px at 50% 58%, #2c2e31 0 2.6px, transparent 3px),
+    linear-gradient(160deg, #f2f4f6, #b9bfc5 55%, #82898f);
+  box-shadow: 0 1px 2px rgba(24,3,4,.5), inset 0 1px 0 #fff;
+  position: relative;
+}
+.lock::after {
+  content: ""; position: absolute; left: 50%; top: 46%;
+  transform: translateX(-50%);
+  width: 2.5px; height: 9px; background: #2c2e31; border-radius: 1px;
+}
+
+/* wear & scratches — "obviously well used" */
+.wear {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(104deg, transparent 40%, rgba(255,255,255,.09) 41%, transparent 42.5%),
+    linear-gradient(97deg,  transparent 63%, rgba(0,0,0,.16) 64%, transparent 65.5%),
+    linear-gradient(101deg, transparent 21%, rgba(255,255,255,.07) 22%, transparent 23.5%),
+    linear-gradient(99deg,  transparent 84%, rgba(0,0,0,.15) 85%, transparent 86.5%),
+    linear-gradient(93deg,  transparent 51%, rgba(255,255,255,.06) 51.7%, transparent 52.4%),
+    radial-gradient(ellipse 130px 18px at 16% 90%, rgba(0,0,0,.26), transparent 72%),
+    radial-gradient(ellipse 90px 12px at 84% 26%, rgba(0,0,0,.2), transparent 72%),
+    radial-gradient(ellipse 60px 10px at 62% 72%, rgba(255,255,255,.08), transparent 70%),
+    radial-gradient(ellipse 170px 22px at 30% 58%, rgba(0,0,0,.16), transparent 74%),
+    radial-gradient(ellipse 70px 26px at 96% 82%, rgba(0,0,0,.22), transparent 70%),
+    radial-gradient(ellipse 54px 40px at 4% 18%, rgba(0,0,0,.2), transparent 72%);
+}
+
+/* ----- drawer box sides (chrome slides) ----- */
+.rail-l, .rail-r {
+  position: absolute; top: 9px; bottom: 0; width: var(--d);
+  pointer-events: none;
+  background: linear-gradient(180deg,
+    #2a0c0e 0 18%, #dfe3e7 18% 33%, #9aa1a8 33% 40%,
+    #3a1114 40% 50%, #c9ced3 50% 62%, #8e979e 62% 68%, #2a0c0e 68% 100%);
+  box-shadow: inset 0 0 12px rgba(0,0,0,.5);
+}
+.rail-l { left: -9px;  transform: rotateY(90deg);  transform-origin: left center; }
+.rail-r { right: -9px; transform: rotateY(-90deg); transform-origin: right center; }
+
+/* ----- the tray (drawer floor: liner + foam cut-outs) ----- */
+.tray {
+  position: absolute; left: 12px; right: 12px; bottom: 0;
+  height: var(--d);
+  transform: rotateX(90deg);
+  transform-origin: bottom center;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.045), transparent 24%),
+    linear-gradient(0deg, rgba(0,0,0,.28), transparent 30%),
+    #232629;
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,.35);
+}
+.liner-cut {
+  position: absolute; left: 26px; right: 26px; top: 26px; height: 120px;
+  border: 1.5px solid rgba(255,255,255,.06);
+  background: rgba(0,0,0,.3);
+  box-shadow: inset 0 2px 6px rgba(0,0,0,.5);
+}
+
+/* ==========================================================================
+   THE INSERT — the project card, hinged at the drawer's front lip.
+   Closed: folded flat into the drawer box. Open: stands nearly vertical,
+   leaning slightly out over the opened drawer front.
+   ========================================================================== */
+.drawer-insert {
+  position: absolute; left: 26px; right: 26px; bottom: 100%;
+  height: var(--ih, 700px);
+  transform-origin: bottom center;
+  transform: translateZ(14px) rotateX(85deg);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    transform .5s cubic-bezier(.55,0,.7,.4),
+    opacity .26s ease,
+    visibility 0s linear .5s;
+}
+.drawer.open .drawer-insert {
+  transform: translateZ(14px) rotateX(-8deg);
+  opacity: 1;
+  visibility: visible;
+  transition:
+    transform .9s .26s cubic-bezier(.2,.72,.24,1),
+    opacity .34s .3s ease,
+    visibility 0s;
+}
+
+/* the physical card */
+.ins-card {
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #8a6c42 #cdb088;
+  background:
+    radial-gradient(ellipse 340px 200px at 18% 6%, rgba(255,255,255,.16), transparent 70%),
+    radial-gradient(ellipse 300px 260px at 92% 96%, rgba(120,84,40,.16), transparent 70%),
+    linear-gradient(180deg, #e0c49b, #d5b586 55%, #cbab7c);
+  border-radius: 5px;
+  box-shadow:
+    0 30px 46px -20px rgba(9,6,4,.6),
+    inset 0 0 0 1px rgba(122,92,52,.4),
+    inset 0 -14px 26px rgba(122,84,40,.12);
+  padding: 15px 20px 16px;
+  color: var(--ink);
+}
+
+/* about card: two columns (copy | spec sheet) */
+.about-cols {
+  display: grid; grid-template-columns: 1fr 1fr;
+  column-gap: 20px; align-items: start;
+}
+.about-cols .about-copy p { font-size: 14px; line-height: 1.52; }
+
+/* content cascade when the card hinges up */
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.drawer.open .ins-card > * {
+  animation: riseIn .5s cubic-bezier(.2,.7,.3,1) backwards;
+}
+.drawer.open .ins-card > *:nth-child(1)  { animation-delay: .78s; }
+.drawer.open .ins-card > *:nth-child(2)  { animation-delay: .85s; }
+.drawer.open .ins-card > *:nth-child(3)  { animation-delay: .92s; }
+.drawer.open .ins-card > *:nth-child(4)  { animation-delay: .99s; }
+.drawer.open .ins-card > *:nth-child(5)  { animation-delay: 1.06s; }
+.drawer.open .ins-card > *:nth-child(6)  { animation-delay: 1.13s; }
+.drawer.open .ins-card > *:nth-child(7)  { animation-delay: 1.2s; }
+.drawer.open .ins-card > *:nth-child(8)  { animation-delay: 1.27s; }
+.drawer.open .ins-card > *:nth-child(9)  { animation-delay: 1.34s; }
+.drawer.open .ins-card > *:nth-child(10) { animation-delay: 1.41s; }
+.drawer.open .ins-card > *:nth-child(11) { animation-delay: 1.48s; }
+.drawer.open .ins-card > *:nth-child(12) { animation-delay: 1.55s; }
+.drawer.open .ins-card > *:nth-child(13) { animation-delay: 1.62s; }
+.drawer.open .ins-card > *:nth-child(n+14) { animation-delay: 1.68s; }
+
+/* card header strip */
+.ins-head {
+  display: flex; align-items: center; gap: 10px;
+  padding-bottom: 10px; margin-bottom: 12px;
+  border-bottom: 2px dashed rgba(122,92,52,.45);
+}
+.ins-head .dymo { transform: rotate(-.4deg); flex: none; }
+.ins-dwg {
+  margin-left: auto;
+  font: 600 9.5px "IBM Plex Mono", monospace; letter-spacing: .22em;
+  color: rgba(58,40,20,.55);
+}
+.ins-close {
+  font: 700 10px "IBM Plex Mono", monospace; letter-spacing: .14em;
+  color: #3d2b12;
+  background: linear-gradient(180deg, #f0ece0, #ddd4bd);
+  border: 1px solid #b5a377;
+  border-radius: 3px;
+  padding: 7px 10px;
+  cursor: pointer;
+  box-shadow: 0 2px 0 #b5a377, inset 0 1px 0 #fff;
+}
+.ins-close:hover { background: linear-gradient(180deg, #fbf8ef, #e8e0cb); }
+.ins-close:active { transform: translateY(1px); box-shadow: 0 1px 0 #b5a377; }
+.ins-close span { color: #a02424; margin-right: 6px; }
+
+/* card typography */
+.ins-card h2 {
+  font: 800 24px/1.06 Archivo, sans-serif;
+  letter-spacing: -.01em;
+  color: #1f1508;
+  margin: 1px 0 3px;
+}
+.ins-role {
+  font: 600 11px/1.5 "IBM Plex Mono", monospace; letter-spacing: .14em;
+  color: #7a5a2c; text-transform: uppercase;
+  margin-bottom: 10px;
+  text-wrap: balance;
+}
+.ins-lede { font-weight: 600; }
+.ins-meta {
+  font: 500 11.5px/1.5 "IBM Plex Mono", monospace; letter-spacing: .05em;
+  color: #6b4d24; margin-bottom: 10px;
+  text-wrap: balance;
+}
+.ins-card p {
+  font: 400 13.5px/1.47 Archivo, sans-serif;
+  color: #2c2113;
+  margin-bottom: 7px;
+}
+.ins-card p strong { color: #16100a; }
+.ins-label {
+  font: 700 10.5px "IBM Plex Mono", monospace;
+  letter-spacing: .26em;
+  color: #a02424;
+  margin: 12px 0 3px;
+  display: flex; align-items: center; gap: 8px;
+}
+.ins-label::after {
+  content: ""; flex: 1; height: 1px;
+  background: repeating-linear-gradient(90deg, rgba(160,36,36,.5) 0 6px, transparent 6px 11px);
+}
+
+/* photo pinned to the card */
+.ins-media {
+  float: right;
+  width: 188px; margin: 3px 0 9px 12px;
+  background: #f6f3ea;
+  padding: 6px 6px 18px;
+  transform: rotate(1.6deg);
+  box-shadow: 0 10px 20px -8px rgba(40,28,12,.55);
+}
+.ins-media img { width: 100%; height: 104px; object-fit: cover; background: #191b1e; }
+
+/* tool-tag chips */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  font: 500 11px "IBM Plex Mono", monospace;
+  color: #3a2c16;
+  background: #f6f2e6;
+  border: 1px solid #c3ab7c;
+  border-radius: 3px;
+  padding: 4px 8px 3px 5px;
+  box-shadow: 0 1px 0 rgba(122,92,52,.5);
+}
+.chip::before {   /* punched tag hole */
+  content: ""; width: 6px; height: 6px; border-radius: 50%;
+  background: #d8c9a4;
+  box-shadow: inset 0 1px 1.5px rgba(0,0,0,.4);
+  flex: none;
+}
+.ins-chips { margin-bottom: 12px; }
+
+/* spec'd metrics — stamped test results */
+.ins-metrics {
+  display: flex; flex-wrap: wrap; gap: 8px 18px;
+  margin: 0 0 4px;
+}
+.ins-metrics li {
+  font: 600 12px "IBM Plex Mono", monospace;
+  color: #23381e;
+}
+.ins-metrics li::before {
+  content: "✓"; margin-right: 6px; color: #2f7d3a;
+  font-weight: 700;
+}
+
+/* about spec sheet */
+.ins-spec {
+  margin: 12px 0 4px;
+  border-top: 2px solid rgba(122,92,52,.4);
+  display: grid; grid-template-columns: 1fr 1fr; column-gap: 26px;
+}
+.spec-row { display: block; padding: 8px 0; border-bottom: 1px solid rgba(122,92,52,.3); }
+.spec-k {
+  display: block;
+  font: 700 10px "IBM Plex Mono", monospace; letter-spacing: .18em;
+  color: #7a5a2c; margin-bottom: 3px;
+}
+.spec-v { font: 500 12.5px/1.5 Archivo, sans-serif; color: #2c2113; }
+.spec-v small { display: block; font-weight: 500; color: #6b5533; }
+.awards li { margin-bottom: 4px; }
+.awards li::before { content: "★ "; color: #a02424; }
+
+/* experience blocks */
+.xp { margin-bottom: 13px; }
+.xp h3 { font: 700 15px/1.25 Archivo, sans-serif; color: #1f1508; margin-bottom: 2px; }
+.xp .org { color: #a02424; }
+.xp-meta { font: 500 11px/1.5 "IBM Plex Mono", monospace; letter-spacing: .04em; color: #6b4d24; margin-bottom: 7px; text-wrap: balance; }
+.xp ul li {
+  font: 400 13.5px/1.44 Archivo, sans-serif; color: #2c2113;
+  padding-left: 15px; position: relative; margin-bottom: 3px;
+}
+.xp ul li::before {
+  content: "▸"; position: absolute; left: 0; color: #a02424;
+}
+
+/* skill blocks */
+.skill-block { margin-bottom: 14px; }
+.skill-block h3 {
+  font: 700 14.5px Archivo, sans-serif; color: #1f1508;
+  margin-bottom: 7px; display: flex; align-items: center; gap: 8px;
+}
+.idx {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; flex: none;
+  background: #a02424; color: #f6efdd;
+  font: 700 11px "IBM Plex Mono", monospace;
+  border-radius: 3px;
+  box-shadow: 0 2px 0 #6d1114;
+}
+
+/* action links — stencil-painted buttons */
+.ins-links {
+  display: flex; flex-wrap: wrap; gap: 9px;
+  margin-top: 12px; padding-top: 12px;
+  border-top: 2px dashed rgba(122,92,52,.45);
+}
+.tag-btn {
+  display: inline-block;
+  font: 700 11.5px "IBM Plex Mono", monospace; letter-spacing: .1em;
+  color: #f8ecd9; text-decoration: none;
+  background: #b31a1d;
+  border: 1px solid #7c1013;
+  border-radius: 3px;
+  padding: 9px 13px;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #7c1013, inset 0 1px 0 rgba(255,255,255,.18);
+}
+.tag-btn:hover { background: #c92428; }
+.tag-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #7c1013; }
+
+/* ==========================================================================
+   Lightbox (demo videos)
+   ========================================================================== */
+.lightbox {
+  border: none; padding: 0; background: transparent;
+  max-width: min(92vw, 920px);
+}
+.lightbox::backdrop { background: rgba(8,9,12,.85); }
+.lightbox video {
+  display: block; width: 100%;
+  background: #000;
+  border: 3px solid #d9bc92;
+  border-radius: 4px;
+  box-shadow: 0 30px 60px rgba(0,0,0,.6);
+}
+.lb-close {
+  display: block; margin: 14px auto 0;
+  font: 700 11px "IBM Plex Mono", monospace; letter-spacing: .14em;
+  color: #f4ead6; background: #b31a1d;
+  border: 1px solid #7c1013; border-radius: 3px;
+  padding: 9px 16px; cursor: pointer;
+  box-shadow: 0 3px 0 #7c1013;
+}
+.lb-close:active { transform: translateY(1px); box-shadow: 0 1px 0 #7c1013; }
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+.shop-footer {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 20;
+  display: flex; justify-content: space-between; align-items: center; gap: 14px;
+  height: 34px; padding: 0 20px;
+  background: #14161a;
+  color: #a9aeb6;
+  font: 500 10px "IBM Plex Mono", monospace; letter-spacing: .08em;
+}
+.shop-footer a { color: #d8b48a; text-decoration: none; }
+.shop-footer a:hover { color: #efd0aa; }
+
+/* ==========================================================================
+   Fit-to-viewport scaling (width first, height wins)
+   ========================================================================== */
+@media (max-width: 1180px) { .world { --fit: .84; } }
+@media (max-width: 1000px) { .world { --fit: .76; } }
+@media (max-height: 880px) { .world { --fit: .86; } }
+@media (max-height: 780px) { .world { --fit: .74; } }
+@media (max-height: 660px) { .world { --fit: .62; } }
+
+/* ==========================================================================
+   Reduced motion — states still change, motion nearly instant
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .world, .drawer-slider, .drawer-insert, .floor-dim {
+    transition-duration: .01s !important;
+    transition-delay: 0s !important;
+  }
+  .drawer.open .ins-card > * { animation: none !important; }
+}
+
+/* ==========================================================================
+   LIST MODE — small screens: same DOM, flat presentation
+   ========================================================================== */
+@media (max-width: 860px) {
+  html, body { height: auto; overflow: visible; }
+  .stage {
+    height: auto; min-height: 0; overflow: visible;
+    perspective: none;
+    background: linear-gradient(180deg, #8f98a2 0 200px, #6f7379 200px 100%);
+    padding: 74px 16px 26px;
+  }
+  .world { position: static; width: auto; height: auto; transform: none !important; }
+  .wall, .shop-floor, .floor-back, .cab-top, .cab-base, .caster, .side-handle,
+  .brand-plate, .drawer-interior, .rail-l, .rail-r, .tray {
+    display: none !important;
+  }
+  /* keep the drawer front button + insert card in flow, drop the 3D box */
+  .drawer-slider { display: contents; }
+  .cabinet { position: static; width: auto; height: auto; left: auto; top: auto; }
+  .cab-frame {
+    position: static; display: block; padding: 0; background: none; box-shadow: none;
+    max-width: 640px; margin: 0 auto;
+  }
+  .cab-frame::before { display: none; }
+  .drawer { height: auto !important; margin-bottom: 10px; }
+  .drawer-front {
+    position: relative; inset: auto; transform: none;
+    width: 100%; min-height: 54px; padding: 12px 16px; gap: 12px;
+  }
+  .drawer-front:hover { transform: none; }
+  .drawer-insert {
+    position: static; height: auto;
+    transform: none !important;
+    display: none;
+  }
+  .drawer.open .drawer-insert {
+    display: block;
+    margin-top: 10px;
+  }
+  .ins-card { height: auto; max-height: none; overflow: visible; padding: 16px 18px 20px; }
+  .drawer.open .ins-card > * { animation: none; }
+  .header-links { gap: 12px; }
+  .ins-media { float: none; width: 100%; margin: 10px 0; transform: none; }
+  .ins-media img { height: 210px; object-fit: cover; }
+  .ins-head { flex-wrap: wrap; }
+  .ins-dwg { display: none; }
+  .wall-sign, .wall-record, .wall-note { display: none; }
+  .shop-header { padding: 10px 16px; }
+  .brand-text em { display: none; }
+  .shop-footer {
+    position: static; height: auto; flex-direction: column; flex-wrap: wrap; gap: 4px;
+    padding: 12px 16px; text-align: center;
+  }
+  .shop-footer span { max-width: 100%; overflow-wrap: anywhere; }
+  body::after { display: none; }
+}
