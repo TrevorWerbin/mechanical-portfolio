@@ -20,8 +20,8 @@
   var drawers = Array.prototype.slice.call(document.querySelectorAll('.drawer'));
   var lightbox = document.getElementById('lightbox');
   var lbVideo = lightbox ? lightbox.querySelector('video') : null;
-  var TARGET_TOP = 64;   /* projected card top when open (px, below header) */
-  function targetTop(d) { return d && d.id === 'about' ? 48 : TARGET_TOP; }
+  var TARGET_TOP = 64;   /* projected sheet top when open (px, below header) */
+  function targetTop(d) { return TARGET_TOP; }
 
   function frontOf(d)  { return d.querySelector('.drawer-front'); }
   function insertOf(d) { return d.querySelector('.drawer-insert'); }
@@ -34,6 +34,17 @@
     frontOf(d).setAttribute('aria-expanded', 'true');
     document.body.classList.add('drawer-open');
     document.body.setAttribute('data-open', d.id);
+    /* pivot the open-state camera swing at THIS drawer so every sheet
+       lands face-on at a uniform size (origin left inline so it also
+       governs the closing animation; it's irrelevant at identity) */
+    var world = document.getElementById('world');
+    if (world) {
+      var frame = d.offsetParent;
+      var originY = frame
+        ? -(752 - (d.offsetTop + d.offsetHeight / 2))
+        : -380;
+      world.style.transformOrigin = '0px ' + originY.toFixed(0) + 'px';
+    }
   }
 
   function clearOpen(d) {
@@ -60,7 +71,7 @@
     if (!isFinite(t0) || !isFinite(t1) || Math.abs(t1 - t0) < 0.5) return null;
     var s = 300 * (targetTop(d) - t0) / (t1 - t0);
     if (!isFinite(s)) return null;
-    return Math.max(300, Math.min(1600, s));
+    return Math.max(-600, Math.min(1600, s));
   }
 
   /* Calibrate the framing, then replay the open animation into it.
@@ -99,8 +110,11 @@
       var err = targetTop(d) - top;
       if (Math.abs(err) < 3) return;
       var cur = parseFloat(document.body.style.getPropertyValue('--s'));
-      if (!isFinite(cur)) cur = 900;
-      var next = Math.max(300, Math.min(1600, cur + err / (2.2 * fitNow())));
+      if (!isFinite(cur)) {
+        cur = parseFloat(getComputedStyle(document.body).getPropertyValue('--s'));
+        if (!isFinite(cur)) cur = 900;
+      }
+      var next = Math.max(-600, Math.min(1600, cur + err / (2.2 * fitNow())));
       document.body.style.setProperty('--s', next.toFixed(1));
       window.requestAnimationFrame(step);
     }
@@ -287,13 +301,38 @@
           var r = b.getBoundingClientRect();
           return [Math.round(r.top), Math.round(r.bottom), Math.round(r.left), Math.round(r.right)];
         });
-      ['wall-sign', 'pegboard', 'biz-card', 'wall-record', 'wall-note', 'cabinet'].forEach(function (id) {
+      ['wall-sign', 'pegboard', 'biz-card', 'wall-note', 'about-sheet', 'cabinet'].forEach(function (id) {
         var el = document.querySelector('.' + id);
         if (el) {
           var r = el.getBoundingClientRect();
           out[id] = [Math.round(r.top), Math.round(r.bottom), Math.round(r.left), Math.round(r.right)];
         }
       });
+      /* axis probe: screen mapping of the sheet's local x / depth axes */
+      var openDrawer = document.querySelector('.drawer.open');
+      if (openDrawer) {
+        var card = openDrawer.querySelector('.ins-card');
+        var cw = card.clientWidth, ch = card.clientHeight;
+        var mk = function (lx, ly) {
+          var d = document.createElement('div');
+          d.style.cssText = 'position:absolute;left:' + lx + 'px;top:' + ly + 'px;width:4px;height:4px;background:#f00;z-index:99;';
+          card.appendChild(d);
+          var r = d.getBoundingClientRect();
+          card.removeChild(d);
+          return [r.left + r.width / 2, r.top + r.height / 2];
+        };
+        var A = mk(8, 8), B = mk(cw - 8, 8), C = mk(8, ch - 40);
+        var xvec = [B[0] - A[0], B[1] - A[1]];
+        var yvec = [C[0] - A[0], C[1] - A[1]];
+        out.probe = {
+          card: [cw, ch],
+          xAxis: [Math.round(xvec[0]), Math.round(xvec[1])],
+          yAxis: [Math.round(yvec[0]), Math.round(yvec[1])],
+          xScale: +(Math.hypot(xvec[0], xvec[1]) / (cw - 16)).toFixed(3),
+          yScale: +(Math.hypot(yvec[0], yvec[1]) / (ch - 48)).toFixed(3),
+          anisotropy: +( (Math.hypot(yvec[0], yvec[1]) / (ch - 48)) / (Math.hypot(xvec[0], xvec[1]) / (cw - 16)) ).toFixed(3)
+        };
+      }
       var pre = document.createElement('pre');
       pre.id = 'measure-out';
       pre.setAttribute('aria-hidden', 'true');
