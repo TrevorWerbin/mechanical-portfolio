@@ -186,7 +186,7 @@ body[data-open="skills"]                { --s: 25.8; }
 }
 /* about sheet - a profile page taped to the wall (left of the cabinet) */
 .about-sheet {
-  position: absolute; left: 640px; top: 624px;
+  position: absolute; left: 500px; top: 624px;
   width: 620px;
   transform: rotate(-.9deg);
   background: #f6f3ea;
