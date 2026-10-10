@@ -250,9 +250,17 @@
       var shouldCalibrate = resizeNeedsCalibration;
       resizeNeedsCalibration = false;
       if (shouldCalibrate) {
+        var ins = insertOf(current);
         var card = current.querySelector('.ins-card');
         var scrollTop = card ? card.scrollTop : 0;
-        calibrate(current);
+        var wasInstant = document.body.classList.contains('no-anim');
+        /* Solve the new frame in place. calibrate() closes and reopens the
+           drawer as part of its probe, which is disruptive after fullscreen. */
+        document.body.classList.add('no-anim');
+        var s = solveOty(ins, current);
+        if (s !== null) document.body.style.setProperty('--s', s.toFixed(1));
+        void ins.offsetWidth;
+        if (!wasInstant) document.body.classList.remove('no-anim');
         if (card) card.scrollTop = scrollTop;
         recheck(current, 2);
       } else {
@@ -260,7 +268,7 @@
       }
     }, resizeNeedsCalibration ? 180 : 140);
   }
-  window.addEventListener('resize', function () { scheduleReframe(false); });
+  window.addEventListener('resize', function () { scheduleReframe(true); });
   document.addEventListener('fullscreenchange', function () { scheduleReframe(true); });
   document.addEventListener('webkitfullscreenchange', function () { scheduleReframe(true); });
 
