@@ -20,10 +20,10 @@
   var drawers = Array.prototype.slice.call(document.querySelectorAll('.drawer'));
   var lightbox = document.getElementById('lightbox');
   var lbVideo = lightbox ? lightbox.querySelector('video') : null;
-  var lbYoutube = lightbox ? lightbox.querySelector('.lb-youtube') : null;
   var lbImage = lightbox ? lightbox.querySelector('.lb-image') : null;
   var lbCaption = lightbox ? lightbox.querySelector('.lb-caption') : null;
   var lastImageTrigger = null;
+  var activeProjectVideo = null;
   var TARGET_TOP = 64;   /* projected sheet top when open (px, below header) */
   function targetTop(d) { return TARGET_TOP; }
 
@@ -164,6 +164,7 @@
   function closeDrawer(d, opts) {
     opts = opts || {};
     if (!d || !d.classList.contains('open')) return;
+    if (activeProjectVideo && activeProjectVideo.anchor.closest('.drawer') === d) closeProjectVideo(false);
 
     d.classList.remove('open');
     frontOf(d).setAttribute('aria-expanded', 'false');
@@ -209,6 +210,7 @@
     if (e.key !== 'Escape') return;
     if (lightbox && lightbox.open) return; /* dialog handles its own Esc */
     if (isFullscreen()) return; /* let the embedded player exit fullscreen first */
+    if (activeProjectVideo) return; /* never let player Escape close its drawer */
     var d = openDrawerEl();
     if (d) closeDrawer(d);
   });
@@ -242,6 +244,51 @@
   var fullscreenRestorePending = false;
   function isFullscreen() {
     return !!(document.fullscreenElement || document.webkitFullscreenElement);
+  }
+  function positionProjectVideo() {
+    if (!activeProjectVideo || isFullscreen()) return;
+    var rect = activeProjectVideo.anchor.getBoundingClientRect();
+    var overlay = activeProjectVideo.overlay;
+    overlay.style.left = Math.round(rect.left) + 'px';
+    overlay.style.top = Math.round(rect.top) + 'px';
+    overlay.style.width = Math.max(0, Math.round(rect.width)) + 'px';
+    overlay.style.height = Math.max(0, Math.round(rect.height)) + 'px';
+    overlay.style.display = rect.bottom <= 0 || rect.top >= window.innerHeight ? 'none' : 'block';
+  }
+  function closeProjectVideo(restoreFocus) {
+    if (!activeProjectVideo) return;
+    var trigger = activeProjectVideo.trigger;
+    window.removeEventListener('resize', positionProjectVideo);
+    window.removeEventListener('scroll', positionProjectVideo, true);
+    activeProjectVideo.overlay.remove();
+    activeProjectVideo = null;
+    if (restoreFocus !== false && trigger && trigger.isConnected) trigger.focus({ preventScroll: true });
+  }
+  function openProjectVideo(trigger) {
+    closeProjectVideo(false);
+    var anchor = trigger.closest('.project-video');
+    var overlay = document.createElement('div');
+    overlay.className = 'floating-project-video';
+    var frame = document.createElement('iframe');
+    frame.title = trigger.getAttribute('data-video-title') || 'YouTube project demonstration';
+    frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+    frame.referrerPolicy = 'strict-origin-when-cross-origin';
+    frame.allowFullscreen = true;
+    frame.src = 'https://www.youtube.com/embed/' + encodeURIComponent(trigger.getAttribute('data-youtube')) + '?autoplay=1&rel=0';
+    var close = document.createElement('button');
+    close.className = 'floating-video-close';
+    close.type = 'button';
+    close.setAttribute('aria-label', 'Close video');
+    close.title = 'Close video';
+    close.textContent = '×';
+    close.addEventListener('click', function () { closeProjectVideo(); });
+    overlay.appendChild(frame);
+    overlay.appendChild(close);
+    document.body.appendChild(overlay);
+    activeProjectVideo = { anchor: anchor, overlay: overlay, trigger: trigger };
+    positionProjectVideo();
+    window.addEventListener('resize', positionProjectVideo);
+    window.addEventListener('scroll', positionProjectVideo, true);
   }
   function saveFullscreenFrame() {
     if (fullscreenSnapshot || !isFullscreen()) return;
@@ -278,6 +325,7 @@
         if (!wasInstant) document.body.classList.remove('no-anim');
       }
       fullscreenRestoreTimer = null;
+      positionProjectVideo();
       fullscreenGuardTimer = window.setTimeout(function () {
         fullscreenRestorePending = false;
         fullscreenGuardTimer = null;
@@ -286,13 +334,17 @@
   }
   function onFullscreenChange() {
     if (isFullscreen()) saveFullscreenFrame();
-    else restoreFullscreenFrame();
+    else {
+      restoreFullscreenFrame();
+      window.setTimeout(positionProjectVideo, 240);
+    }
   }
   window.addEventListener('resize', function () {
     if (isFullscreen()) { saveFullscreenFrame(); return; }
     if (fullscreenSnapshot) { restoreFullscreenFrame(); return; }
     if (fullscreenRestorePending) return;
     if (lightbox && lightbox.open) return;
+    if (activeProjectVideo) { positionProjectVideo(); return; }
     var d = openDrawerEl();
     if (!d) return;
     if (resizeTimer) window.clearTimeout(resizeTimer);
@@ -310,8 +362,6 @@
       lastImageTrigger = img;
       lbVideo.pause();
       lbVideo.hidden = true;
-      lbYoutube.hidden = true;
-      lbYoutube.removeAttribute('src');
       lbImage.hidden = false;
       lbImage.src = img.currentSrc || img.src;
       lbImage.alt = img.alt || 'Enlarged project image';
@@ -337,16 +387,7 @@
 
     document.querySelectorAll('[data-youtube]').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        lastImageTrigger = btn;
-        lbImage.hidden = true;
-        lbYoutube.hidden = false;
-        lbVideo.hidden = true;
-        lbCaption.textContent = '';
-        var title = btn.getAttribute('data-video-title') || 'YouTube project demonstration';
-        lbYoutube.title = title;
-        lbYoutube.src = 'https://www.youtube.com/embed/' + encodeURIComponent(btn.getAttribute('data-youtube')) + '?autoplay=1&rel=0';
-        lightbox.setAttribute('aria-label', title);
-        lightbox.showModal();
+        openProjectVideo(btn);
       });
     });
     lightbox.addEventListener('close', function () {
@@ -354,8 +395,6 @@
       lbVideo.removeAttribute('src');
       lbVideo.load();
       lbVideo.hidden = true;
-      lbYoutube.removeAttribute('src');
-      lbYoutube.hidden = true;
       lbImage.hidden = true;
       lbImage.removeAttribute('src');
       lbCaption.textContent = '';
