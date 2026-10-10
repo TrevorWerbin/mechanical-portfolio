@@ -20,6 +20,7 @@
   var drawers = Array.prototype.slice.call(document.querySelectorAll('.drawer'));
   var lightbox = document.getElementById('lightbox');
   var lbVideo = lightbox ? lightbox.querySelector('video') : null;
+  var lbYoutube = lightbox ? lightbox.querySelector('.lb-youtube') : null;
   var lbImage = lightbox ? lightbox.querySelector('.lb-image') : null;
   var lbCaption = lightbox ? lightbox.querySelector('.lb-caption') : null;
   var lastImageTrigger = null;
@@ -291,6 +292,7 @@
     if (isFullscreen()) { saveFullscreenFrame(); return; }
     if (fullscreenSnapshot) { restoreFullscreenFrame(); return; }
     if (fullscreenRestorePending) return;
+    if (lightbox && lightbox.open) return;
     var d = openDrawerEl();
     if (!d) return;
     if (resizeTimer) window.clearTimeout(resizeTimer);
@@ -308,6 +310,8 @@
       lastImageTrigger = img;
       lbVideo.pause();
       lbVideo.hidden = true;
+      lbYoutube.hidden = true;
+      lbYoutube.removeAttribute('src');
       lbImage.hidden = false;
       lbImage.src = img.currentSrc || img.src;
       lbImage.alt = img.alt || 'Enlarged project image';
@@ -331,15 +335,18 @@
       });
     });
 
-    document.querySelectorAll('[data-video]').forEach(function (btn) {
+    document.querySelectorAll('[data-youtube]').forEach(function (btn) {
       btn.addEventListener('click', function () {
+        lastImageTrigger = btn;
         lbImage.hidden = true;
-        lbVideo.hidden = false;
+        lbYoutube.hidden = false;
+        lbVideo.hidden = true;
         lbCaption.textContent = '';
-        lbVideo.src = btn.getAttribute('data-video');
+        var title = btn.getAttribute('data-video-title') || 'YouTube project demonstration';
+        lbYoutube.title = title;
+        lbYoutube.src = 'https://www.youtube.com/embed/' + encodeURIComponent(btn.getAttribute('data-youtube')) + '?autoplay=1&rel=0';
+        lightbox.setAttribute('aria-label', title);
         lightbox.showModal();
-        var p = lbVideo.play();
-        if (p && p.catch) p.catch(function () { /* user will press play */ });
       });
     });
     lightbox.addEventListener('close', function () {
@@ -347,6 +354,8 @@
       lbVideo.removeAttribute('src');
       lbVideo.load();
       lbVideo.hidden = true;
+      lbYoutube.removeAttribute('src');
+      lbYoutube.hidden = true;
       lbImage.hidden = true;
       lbImage.removeAttribute('src');
       lbCaption.textContent = '';
