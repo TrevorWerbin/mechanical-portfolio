@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>Trevor Werbin | Mechanical Engineering Portfolio</title>
   <meta name="description" content="Portfolio of Trevor Werbin, Mechanical Engineering (Mechatronics Option) student at the University of Waterloo. Hands-on mechanical design, fabrication, and test. Open a drawer.">
   <meta property="og:title" content="Trevor Werbin | Mechanical Engineering Portfolio">
   <meta property="og:description" content="Hands-on mechanical design, fabrication, and test, from CAD to working hardware. Open a drawer.">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="assets/img/cookie-machine.png">
+  <meta property="og:image" content="assets/img/Icing%20Full%20Pic.png">
   <link rel="icon" type="image/svg+xml" href="assets/img/favicon-toolbox.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,9 +27,7 @@
   <!-- ============ Top bar (2D overlay) ============ -->
   <header class="shop-header">
     <div class="brand">
-      <span class="brand-mark" aria-hidden="true">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8Z" stroke="#e9ecef" stroke-width="1.8"/><path d="M12 1.8v2.4M12 19.8v2.4M2.2 12h2.4M19.4 12h2.4M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M19.1 4.9l-1.7 1.7M6.6 17.4l-1.7 1.7" stroke="#e9ecef" stroke-width="1.7" stroke-linecap="round"/></svg>
-      </span>
+      <span class="brand-mark" aria-hidden="true"><img src="assets/img/gears.png" alt=""></span>
       <span class="brand-text">TREVOR WERBIN <em>Mechanical Engineering · Mechatronics</em></span>
     </div>
   </header>
@@ -53,7 +52,8 @@
             <a href="mailto:twerbin@uwaterloo.ca">twerbin@uwaterloo.ca</a>
             <a href="https://www.linkedin.com/in/trevor-werbin" target="_blank" rel="noopener">LinkedIn ↗</a>
             <a href="https://github.com/TrevorWerbin" target="_blank" rel="noopener">GitHub ↗</a>
-            <a class="biz-pdf" href="assets/docs/portfolio.pdf" target="_blank" rel="noopener">Portfolio PDF ↗</a>
+            <a class="biz-pdf" href="assets/docs/Trevor%20Werbin%20Resume.pdf" target="_blank" rel="noopener">Resume ↗</a>
+            <a class="biz-pdf" href="assets/docs/portfolio.pdf" target="_blank" rel="noopener">Portfolio ↗</a>
           </div>
         </div>
 
@@ -61,15 +61,14 @@
         <!-- About sheet taped to the wall (left) -->
         <div class="about-sheet" id="about">
           <div class="sheet-name">Trevor Werbin</div>
-          <div class="sheet-role">Mechanical Engineering &middot; Mechatronics Option &middot; University of Waterloo</div>
+          <div class="sheet-role">B.A.Sc. Mechanical Engineering &middot; Mechatronics Option &middot; University of Waterloo <small>(Sep 2025 &ndash; Apr 2030)</small></div>
           <p class="sheet-lede">I&rsquo;m a Mechanical Engineering student at the University of Waterloo with hands-on experience in mechanical design, fabrication, and product development, from parametric CAD, 3D printing, and machining to DFM, GD&amp;T drawings, and product testing. I like problems where the answer has to exist in the real world, with parts that fit, mechanisms that move, and data that says whether it worked.</p>
-                    <div class="sheet-spec">
-            <div class="sp"><span class="sp-k">Program</span><span class="sp-v">B.A.Sc. Mechanical Engineering, Mechatronics Option <small>(Sep 2025 &ndash; Apr 2030)</small></span></div>
-            <div class="sp"><span class="sp-k">Courses</span><span class="sp-v"><span class="sp-chip">Electromechanical Devices</span><span class="sp-chip">Properties of Materials</span><span class="sp-chip">Mechanics of Deformable Solids</span><span class="sp-chip">Adv. Calculus</span></span></div>
-            <div class="sp"><span class="sp-k">Design Teams</span><span class="sp-v">Waterloo Space Rover Design Team <small>(UW Robotics Team)</small></span></div>
+          <div class="sheet-spec">
+            <div class="sp sp-courses"><span class="sp-k">Courses</span><span class="sp-v"><span class="sp-chip">Electromechanical Devices</span><span class="sp-chip">Properties of Materials</span><span class="sp-chip">Mechanics of Deformable Solids</span><span class="sp-chip">Adv. Calculus</span></span></div>
+            <div class="sp sp-team"><span class="sp-k">Design Teams</span><span class="sp-v">Waterloo Space Rover Design Team <small>(UW Robotics Team)</small></span></div>
             <div class="sp"><span class="sp-k">Awards</span><span class="sp-v"><ul class="sp-awards"><li>President&rsquo;s Scholarship of Distinction ($5k), &gt;95% admission average</li><li>Peter C. Masak Memorial Scholarship ($4k), Outstanding Mechanical Engineering Student</li></ul></span></div>
           </div>
-          <a class="sheet-pdf" href="assets/docs/portfolio.pdf" target="_blank" rel="noopener">Portfolio PDF &#8599;</a>
+          <div class="sheet-actions sheet-actions-bottom"><a class="sheet-action-primary" href="assets/docs/Trevor%20Werbin%20Resume.pdf" target="_blank" rel="noopener">Resume ↗</a><a class="sheet-action-secondary" href="https://www.linkedin.com/in/trevor-werbin" target="_blank" rel="noopener">LinkedIn ↗</a><a class="sheet-action-primary" href="assets/docs/portfolio.pdf" target="_blank" rel="noopener">Portfolio ↗</a></div>
         </div>
 
         <!-- Wall sign (right of cabinet) -->
@@ -127,6 +126,8 @@
                   <button class="ins-close" data-close aria-label="Close drawer"><span aria-hidden="true">✕</span> PUSH&nbsp;TO&nbsp;CLOSE</button>
                 </div>
                 <h2>Experience</h2>
+                <a class="tag-btn xp-resume" href="assets/docs/Trevor%20Werbin%20Resume.pdf" target="_blank" rel="noopener">Resume ↗</a>
+                <p class="scroll-cue">SCROLL FOR MORE ↓</p>
                 <div class="xp">
                   <h3>Mechanical Engineering Intern (R&amp;D) · <span class="org">Ciena Corporation</span></h3>
                   <div class="xp-meta">Ottawa, Ontario · Optical networking hardware R&amp;D · May – Aug 2026</div>
@@ -175,26 +176,31 @@
                   <span class="ins-dwg">DWG&nbsp;NO.&nbsp;02</span>
                   <button class="ins-close" data-close aria-label="Close drawer"><span aria-hidden="true">✕</span> PUSH&nbsp;TO&nbsp;CLOSE</button>
                 </div>
-                <h2>Autonomous Cookie Icing Machine</h2>
-                <p class="ins-meta">ME101 Final · Feb – Apr 2026 · 4-person team</p>
-                <div class="ins-media">
-                  <img src="assets/img/cookie-machine.png" alt="Autonomous cookie icing machine: annotated CAD model and icing dispenser" loading="lazy">
-                </div>
+                <div class="ins-title-row"><h2>Autonomous Cookie Icing Machine</h2><div class="page-cues"><span>↗ Click a picture to enlarge</span><span>Scroll for more ↓</span></div></div>
+                <p class="ins-meta">ME101 Final · 4-person team</p>
                 <div class="chips ins-chips"><span class="chip">SolidWorks</span><span class="chip">C++</span><span class="chip">Fabrication</span><span class="chip">DFM</span><span class="chip">Circuits</span><span class="chip">3D Printing</span><span class="chip">Laser Cutting</span></div>
-                <ul class="ins-metrics">
-                  <li>&lt; 4 min icing cycle</li>
-                  <li>3 icing colours</li>
-                </ul>
-                <div class="ins-label">Objective</div>
-                <p>Design, build, and program an autonomous cookie icing machine capable of applying a user designed multi-colour icing pattern to the surface of a cookie in &lt;240 secs. This was the final project for ME101 in my 1B term.</p>
-                <div class="ins-label">My Contribution</div>
-                <p>I modelled the gantry and icing dispenser in SolidWorks and led most of the fabrication including 3D printing motor casings and the gantry, and laser-cutting the acrylic racks, baseplate, and enclosure. Facing a motor shortage, I proposed <strong>moving the cookie baseplate instead of the nozzle</strong> which improved icing accuracy and reduced load on the upper motors. I conducted iterative testing throughout and used the results to implement plunger logic that prevents dispensing failures from trapped air and icing pooling.</p>
+                <div class="story-pair cookie-pair" aria-label="Cookie icing machine CAD and finished prototype">
+                  <figure><img src="assets/img/CAD Icing annotated.png" alt="Annotated SolidWorks assembly showing the gantry, icing plunger, rotating barrel, and cookie plate" loading="lazy"><figcaption>Annotated CAD assembly</figcaption></figure>
+                  <figure><img src="assets/img/Icing Full Pic.png" alt="Full view of the completed autonomous cookie icing machine" loading="lazy"><figcaption>Completed icing machine</figcaption></figure>
+                </div>
+                <div class="ins-label story-inline">Objective</div>
+                <p>Our assignment was to build a mechanical project from set quantities of VEX IQ, 3D-printed, and laser-cut parts. We challenged ourselves to build and program a machine that applies a user-designed, multicolor icing pattern to a cookie in under four minutes.</p>
+                <div class="ins-label story-inline">My Contribution</div>
+                <p>I modelled the gantry and dispenser in SolidWorks and led fabrication of the printed motor housings and gantry, plus the laser-cut acrylic racks, baseplate, and enclosure. When a motor shortage threatened accuracy, I moved the cookie baseplate instead of the nozzle. Testing informed plunger logic that prevents trapped-air and icing-pooling failures.</p>
                 <div class="ins-label">Outcome &amp; Learning</div>
-                <p>The machine met every engineering specification. I learned how critical sensor calibration is for reliable autonomous operation: sensors are sensitive and rarely behave exactly as their datasheet promises.</p>
+                <p>The machine met every specification. Iterative testing taught me how critical sensor calibration is when real sensors behave differently from their datasheets.</p>
+                <div class="cookie-media-row">
+                  <figure class="story-photo dispenser-photo"><img src="assets/img/Annotated Icing Dispenser.png" alt="Close-up of the icing dispenser with the barrel, injector rack, motor enclosure, and colour sensor identified" loading="lazy"><figcaption>Icing dispenser and sensors</figcaption></figure>
+                  <div class="cookie-video-wrap">
+                    <div class="project-video">
+                      <iframe src="https://www.youtube.com/embed/XftQwnahEic?rel=0" title="Autonomous Cookie Icing Machine demonstration" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    </div>
+                    <p class="video-fallback">If playback is unavailable, <a href="https://youtu.be/XftQwnahEic" target="_blank" rel="noopener">watch the demo on YouTube ↗</a>.</p>
+                  </div>
+                </div>
                 <div class="ins-links">
-                  <a class="tag-btn" href="assets/docs/icing-report.pdf" target="_blank" rel="noopener">Report PDF ↗</a>
-                  <button class="tag-btn tag-video" data-video="assets/video/cookie-demo.mp4">▶ Demo</button>
-                  <a class="tag-btn" href="https://github.com/TrevorWerbin/mechanical-portfolio/tree/main/01.%20Autonomous%20Cookie%20Icing%20Machine" target="_blank" rel="noopener">GitHub ↗</a>
+                  <a class="tag-btn" href="https://github.com/TrevorWerbin/mechanical-portfolio/tree/main/01.%20Autonomous%20Cookie%20Icing%20Machine" target="_blank" rel="noopener">Full Report ↗</a>
+                  <a class="tag-btn" href="assets/docs/icing-report.pdf" target="_blank" rel="noopener">Submitted Course Report ↗</a>
                 </div>
 
               <div class="ins-tb"><span class="tb-co">WERBIN TOOL CO.</span><span>DRAWER 02 · COOKIE ICING MACHINE</span><span class="tb-scale">DWG NO. 02 · SCALE NTS</span></div>              </div>
@@ -223,26 +229,23 @@
                   <span class="ins-dwg">DWG&nbsp;NO.&nbsp;03</span>
                   <button class="ins-close" data-close aria-label="Close drawer"><span aria-hidden="true">✕</span> PUSH&nbsp;TO&nbsp;CLOSE</button>
                 </div>
-                <h2>Mechanical Thumb Toy &ldquo;Digit&rdquo;</h2>
-                <p class="ins-meta">ME100 Final · Oct – Dec 2025 · 3 design iterations</p>
-                <div class="ins-media">
-                  <img src="assets/img/digit.jpg" alt="Digit, a wearable actuating mechanical thumb grasping an object" loading="lazy">
-                </div>
-                <div class="chips ins-chips"><span class="chip">SolidWorks</span><span class="chip">Iterative Design</span><span class="chip">3D Printing</span><span class="chip">Functional Testing</span><span class="chip">Technical Reports</span></div>
-                <ul class="ins-metrics">
-                  <li>30 N grip force spec met</li>
-                  <li>&lt; 1 s actuation</li>
-                </ul>
+                <div class="ins-title-row"><h2>Mechanical Thumb Toy &ldquo;Digit&rdquo;</h2><div class="page-cues"><span>↗ Click a picture to enlarge</span><span>Scroll for more ↓</span></div></div>
+                <p class="ins-meta">ME100 Final · 3 design iterations</p>
+                <div class="chips ins-chips"><span class="chip">SolidWorks</span><span class="chip">Iterative Design</span><span class="chip">3D Printing</span><span class="chip">Functional Testing</span></div>
                 <div class="ins-label">Objective</div>
-                <p>Create a mechanically operated toy for the ME100 course final project, applying 3D modelling and machine shop skills through the engineering design process.</p>
+                <p>Design and build a mechanically actuated extra thumb for the ME100 final, from CAD through prototype testing.</p>
                 <div class="ins-label">My Contribution</div>
-                <p>I owned several core mechanical components: the hand-mounting mechanism and the elastic extension mechanism that returns the thumb to neutral. My initial design used a thumb-slide and string for actuation but testing showed this defeated Digit&rsquo;s purpose as an <em>extra</em> finger, since it occupied the user&rsquo;s own thumb. I transitioned to <strong>wrist-based actuation</strong>, freeing all five fingers while enabling controlled movement of Digit, and this was the configuration we shipped.</p>
-                <div class="ins-label">Outcome &amp; Learning</div>
-                <p>Digit met its 30&nbsp;N grip-force spec with sub-second actuation, and the working prototype was kept by the professor as an example for future students. I learned to build independent mechanical motion paths tied to specific hand movements, preventing wrist rotation from accidentally triggering extension or retraction.</p>
+                <figure class="story-photo right digit-photo"><img src="assets/img/Mechanical Thumb.png" alt="Digit wearable mechanical thumb prototype mounted to a hand, showing the wrist and hand attachments" loading="lazy"><figcaption>Digit prototype and hand mounting</figcaption></figure>
+                <p>I designed the hand mount and elastic return mechanism. Testing showed that my first thumb-slide and string control occupied the user&rsquo;s thumb, defeating the goal of an extra finger. I switched to <strong>wrist-based actuation</strong>, freeing all five fingers while keeping Digit under control.</p>
+                <div class="ins-label story-inline">Outcome &amp; Learning</div>
+                <p>Digit met its 30&nbsp;N grip-force target and actuated in under a second. The professor kept the prototype for future students. I learned to link independent mechanisms to specific hand movements without accidental actuation.</p>
+                <div class="project-video">
+                  <iframe src="https://www.youtube.com/embed/OHbV8tSdSpw?rel=0" title="Mechanical Thumb Digit demonstration" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                </div>
+                <p class="video-fallback">If playback is unavailable, <a href="https://youtu.be/OHbV8tSdSpw" target="_blank" rel="noopener">watch the demo on YouTube ↗</a>.</p>
                 <div class="ins-links">
-                  <a class="tag-btn" href="assets/docs/digit-report.pdf" target="_blank" rel="noopener">Report PDF ↗</a>
-                  <button class="tag-btn tag-video" data-video="assets/video/digit-demo.mp4">▶ Demo</button>
-                  <a class="tag-btn" href="https://github.com/TrevorWerbin/mechanical-portfolio/tree/main/02.%20Mechanical%20Thumb%20Toy" target="_blank" rel="noopener">GitHub ↗</a>
+                  <a class="tag-btn" href="https://github.com/TrevorWerbin/mechanical-portfolio/tree/main/02.%20Mechanical%20Thumb%20Toy" target="_blank" rel="noopener">Full Report ↗</a>
+                  <a class="tag-btn" href="assets/docs/digit-report.pdf" target="_blank" rel="noopener">Submitted Course Report ↗</a>
                 </div>
 
               <div class="ins-tb"><span class="tb-co">WERBIN TOOL CO.</span><span>DRAWER 03 · THUMB &ldquo;DIGIT&rdquo;</span><span class="tb-scale">DWG NO. 03 · SCALE NTS</span></div>              </div>
@@ -271,23 +274,19 @@
                   <span class="ins-dwg">DWG&nbsp;NO.&nbsp;04</span>
                   <button class="ins-close" data-close aria-label="Close drawer"><span aria-hidden="true">✕</span> PUSH&nbsp;TO&nbsp;CLOSE</button>
                 </div>
-                <h2>Solar Car Canopy Design</h2>
-                <p class="ins-meta">UW Midnight Sun Team · Sep 2025 · Team-lead approved</p>
-                <div class="ins-media">
-                  <img src="assets/img/canopy.png" alt="Solar car canopy: SolidWorks orthographic views" loading="lazy">
-                </div>
+                <div class="ins-title-row"><h2>Solar Car Canopy Design</h2><div class="page-cues"><span>↗ Click a picture to enlarge</span><span>Scroll for more ↓</span></div></div>
+                <p class="ins-meta">UW Midnight Sun Team · Team-lead approved</p>
                 <div class="chips ins-chips"><span class="chip">SolidWorks</span><span class="chip">Surface Modelling</span><span class="chip">Lofting</span><span class="chip">Split Lines</span></div>
-                <ul class="ins-metrics">
-                  <li>Aerodynamics + driver visibility</li>
-                </ul>
                 <div class="ins-label">Objective</div>
-                <p>Design a canopy for the solar car as part of the onboarding process for the University of Waterloo Midnight Sun design team, ensuring it's optimized for aerodynamics and driver visibility.</p>
+                <p>Develop a solar-car canopy for the University of Waterloo Midnight Sun team, balancing aerodynamic shape with driver visibility.</p>
                 <div class="ins-label">My Contribution</div>
-                <p>I designed and modelled the full canopy in SolidWorks, independently learning surface modelling, lofting, and split-line techniques to produce the aerodynamic form.</p>
-                <div class="ins-label">Outcome &amp; Learning</div>
-                <p>The canopy was approved by the team leads. I learned how surface models are used to balance drag reduction against driver visibility and packaging on a real competition vehicle.</p>
+                <figure class="story-photo right"><img src="assets/img/Canopy Isometric.png" alt="Isometric SolidWorks view of the solar car canopy surface" loading="lazy"><figcaption>Isometric canopy surface</figcaption></figure>
+                <p>I modelled the canopy in SolidWorks, learning surface modelling, lofting, and split-line tools to create its aerodynamic form.</p>
+                <div class="ins-label story-inline">Outcome &amp; Learning</div>
+                <p>Team leads approved the design. The project taught me to balance drag reduction, driver visibility, and vehicle packaging.</p>
+                <figure class="story-photo wide"><img src="assets/img/Canopy Orthographic.png" alt="Top, front, and side orthographic views of the solar car canopy" loading="lazy"><figcaption>Orthographic views</figcaption></figure>
                 <div class="ins-links">
-                  <a class="tag-btn" href="https://github.com/TrevorWerbin/mechanical-portfolio/tree/main/03.%20Solar%20Car%20Canopy%20-%20UW%20Midnight%20Sun%20Team" target="_blank" rel="noopener">GitHub ↗</a>
+                  <a class="tag-btn" href="https://github.com/TrevorWerbin/mechanical-portfolio/tree/main/03.%20Solar%20Car%20Canopy%20-%20UW%20Midnight%20Sun%20Team" target="_blank" rel="noopener">Full Report ↗</a>
                 </div>
 
               <div class="ins-tb"><span class="tb-co">WERBIN TOOL CO.</span><span>DRAWER 04 · SOLAR CAR CANOPY</span><span class="tb-scale">DWG NO. 04 · SCALE NTS</span></div>              </div>
@@ -316,24 +315,18 @@
                   <span class="ins-dwg">DWG&nbsp;NO.&nbsp;05</span>
                   <button class="ins-close" data-close aria-label="Close drawer"><span aria-hidden="true">✕</span> PUSH&nbsp;TO&nbsp;CLOSE</button>
                 </div>
-                <h2>DIY Dynamometer</h2>
-                <p class="ins-meta">ME100 · Oct 2025 · 5-person team</p>
-                <div class="ins-media">
-                  <img src="assets/img/dynamometer.png" alt="DIY rope brake dynamometer for measuring TT motor torque" loading="lazy">
-                </div>
+                <div class="ins-title-row"><h2>DIY Dynamometer</h2><div class="page-cues"><span>↗ Click a picture to enlarge</span><span>Scroll for more ↓</span></div></div>
+                <p class="ins-meta">ME100 · 5-person team</p>
                 <div class="chips ins-chips"><span class="chip">Excel</span><span class="chip">Data Analysis</span><span class="chip">Technical Report Writing</span></div>
-                <ul class="ins-metrics">
-                  <li>45% deviation quantified</li>
-                  <li>2 scatter-plot analyses</li>
-                </ul>
                 <div class="ins-label">Objective</div>
-                <p>Design and build a dynamometer to measure the torque output of a TT motor, using a TETRIX&reg; robotics set plus a switch, breadboard, jumper wires, and power supply. Online research on rope and Prony brakes guided the design.</p>
+                <p>Build a dynamometer to measure TT motor torque using a TETRIX&reg; set, load cell, and rope brake informed by research on rope and Prony brakes.</p>
                 <div class="ins-label">My Contribution</div>
-                <p>We chose a rope brake for its lower part count, and I designed the final structure which was a tall frame giving a wider measurement range than the alternative which hung from the table. I also built the two key analyses in Excel with best-fit lines (elastic force vs. displacement, and torque vs. motor speed) and authored the report section on the torque-speed curve and sources of measurement inaccuracy.</p>
-                <div class="ins-label">Outcome &amp; Learning</div>
-                <p>The team submitted a report evaluating our torque measurements against manufacturer values, quantifying a 45% deviation and identifying its likely sources. I learned how dynamometers work, how to translate research into a physical product, and how to read correlation from graphs.</p>
+                <figure class="story-photo right dynamo-photo"><img src="assets/img/Dynamometer.png" alt="DIY dynamometer with its motor, breadboard, frame, string, cup, and load cell labeled" loading="lazy"><figcaption>Rope-brake dynamometer test rig</figcaption></figure>
+                <p>I chose a low-part-count rope brake and designed a tall frame for a wider measurement range. I also analysed elastic force versus displacement and torque versus motor speed in Excel, then documented the torque-speed curve and measurement limits.</p>
+                <div class="ins-label story-inline">Outcome &amp; Learning</div>
+                <p>Our report found a 45% deviation from manufacturer values and investigated its causes. I learned to turn research into a test rig and draw conclusions from measured data.</p>
                 <div class="ins-links">
-                  <a class="tag-btn" href="https://github.com/TrevorWerbin/mechanical-portfolio/tree/main/04.%20DIY%20Dynamometer" target="_blank" rel="noopener">GitHub ↗</a>
+                  <a class="tag-btn" href="https://github.com/TrevorWerbin/mechanical-portfolio/tree/main/04.%20DIY%20Dynamometer" target="_blank" rel="noopener">Full Report ↗</a>
                 </div>
 
               <div class="ins-tb"><span class="tb-co">WERBIN TOOL CO.</span><span>DRAWER 05 · DIY DYNAMOMETER</span><span class="tb-scale">DWG NO. 05 · SCALE NTS</span></div>              </div>
@@ -362,24 +355,22 @@
                   <span class="ins-dwg">DWG&nbsp;NO.&nbsp;06</span>
                   <button class="ins-close" data-close aria-label="Close drawer"><span aria-hidden="true">✕</span> PUSH&nbsp;TO&nbsp;CLOSE</button>
                 </div>
-                <h2>Spur Gear Keychain</h2>
-                <p class="ins-meta">Machine Shop · Sep 2025 · Machined from aluminum stock</p>
-                <div class="ins-media">
-                  <img src="assets/img/keychain.svg" alt="Spur gear keychain: technical drawing" loading="lazy">
-                </div>
+                <div class="ins-title-row"><h2>Spur Gear Keychain</h2><div class="page-cues"><span>↗ Click a picture to enlarge</span><span>Scroll for more ↓</span></div></div>
+                <p class="ins-meta">Machine Shop · Machined from aluminum stock</p>
                 <div class="chips ins-chips"><span class="chip">SolidWorks</span><span class="chip">Lathe</span><span class="chip">3-Axis Mill</span><span class="chip">Drill Press</span><span class="chip">Tapping</span></div>
-                <ul class="ins-metrics">
-                  <li>3.5 × 1.25 × 0.5 in</li>
-                  <li>4 machine tools</li>
-                </ul>
-                <div class="ins-label">Objective</div>
+                <div class="ins-label story-inline">Objective</div>
+                <div class="story-pair keychain-pair" aria-label="Keychain assembly and finished part">
+                  <figure><img src="assets/img/Keychain Isometric.png" alt="Isometric SolidWorks model of the spur gear keychain assembly" loading="lazy"><figcaption>SolidWorks assembly</figcaption></figure>
+                  <figure><img src="assets/img/Keychain.png" alt="Machined aluminum spur gear keychain held in hand" loading="lazy"><figcaption>Machined keychain</figcaption></figure>
+                </div>
                 <p>Design and fabricate a custom keychain with a freely revolving spur gear.</p>
-                <div class="ins-label">My Contribution</div>
-                <p>I modelled the full assembly in SolidWorks, then machined and assembled it myself using a lathe, 3-axis mill, drill press, and a tap for the internal threads.</p>
+                <div class="ins-label story-inline">My Contribution</div>
+                <p>I modelled the assembly in SolidWorks, then machined and assembled it with a lathe, 3-axis mill, drill press, and tap.</p>
+                <figure class="story-photo wide keychain-drawing"><img src="assets/img/Keychain Drawing.png" alt="Engineering drawing of the spur gear keychain assembly" loading="lazy"><figcaption>Assembly drawing</figcaption></figure>
                 <div class="ins-label">Outcome &amp; Learning</div>
-                <p>A working, precise part that was manufactured in &lt; 1hr. I learned clean machining fundamentals, machine shop safety and etiquette, and how to model a real physical mechanism as a SolidWorks assembly.</p>
+                <p>The finished aluminum keychain was machined in under an hour. I strengthened my machining, shop-safety, and assembly-modelling skills.</p>
                 <div class="ins-links">
-                  <a class="tag-btn" href="https://github.com/TrevorWerbin/mechanical-portfolio/tree/main/05.%20Spur%20Gear%20Key%20Chain" target="_blank" rel="noopener">GitHub ↗</a>
+                  <a class="tag-btn" href="https://github.com/TrevorWerbin/mechanical-portfolio/tree/main/05.%20Spur%20Gear%20Key%20Chain" target="_blank" rel="noopener">Full Report ↗</a>
                 </div>
 
               <div class="ins-tb"><span class="tb-co">WERBIN TOOL CO.</span><span>DRAWER 06 · SPUR GEAR KEYCHAIN</span><span class="tb-scale">DWG NO. 06 · SCALE NTS</span></div>              </div>
@@ -410,6 +401,7 @@
                 </div>
                 <h2>Skills</h2>
                 <p class="ins-role">Hardware first.</p>
+                <p class="scroll-cue">SCROLL FOR MORE ↓</p>
                 <div class="skill-block">
                   <h3><span class="idx">A</span>Design &amp; CAD</h3>
                   <div class="chips"><span class="chip">PTC Creo</span><span class="chip">SolidWorks</span><span class="chip">AutoCAD</span><span class="chip">Parametric CAD</span><span class="chip">Surface Modelling</span><span class="chip">GD&amp;T</span><span class="chip">DFM</span><span class="chip">Tolerance Stack-Ups</span><span class="chip">FEA</span></div>
@@ -436,9 +428,11 @@
     </div><!-- /world -->
   </div><!-- /stage -->
 
-  <!-- ============ Video lightbox ============ -->
-  <dialog class="lightbox" id="lightbox" aria-label="Project demo video">
-    <video controls preload="metadata"></video>
+  <!-- ============ Project image and video preview ============ -->
+  <dialog class="lightbox" id="lightbox" aria-label="Enlarged project image">
+    <img class="lb-image" alt="" hidden>
+    <p class="lb-caption"></p>
+    <video controls preload="metadata" hidden></video>
     <button class="lb-close" data-lb-close>Close ✕</button>
   </dialog>
 

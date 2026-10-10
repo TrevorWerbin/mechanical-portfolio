@@ -1,0 +1,1135 @@
+/* ==========================================================================
+   TREVOR WERBIN — THE TOOL CABINET
+   A portfolio you open like a tool chest: click a drawer, the drawer slides
+   toward you, the camera rises to look down into it, and the project card
+   hinges up out of the drawer. Pure CSS 3D — no frameworks, no WebGL.
+   ========================================================================== */
+
+/* ---------- Tokens ---------- */
+:root {
+  --red-hi:   #e2453e;
+  --red:      #c22023;
+  --red-mid:  #b31a1d;
+  --red-deep: #971317;
+  --chrome-hi:#fbfcfd;
+  --chrome:   #ccd2d6;
+  --chrome-lo:#8e979e;
+  --liner:    #232629;
+  --ink:      #241a10;
+  --kraft:    #d9bc92;
+  --tape:     #efece2;
+  --d:        640px;    /* drawer travel / tray depth */
+  --tilt:     -90deg;   /* camera looks straight down so open sheets read flat */
+  --oscale:   1.46;     /* world scale (dolly-in) when open */
+  --fit:      .9;       /* scaled down by the viewport rules below */
+}
+
+/* ---------- Base ---------- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { height: 100%; }
+body {
+  height: 100%;
+  margin: 0;
+  background: #3f4348;
+  font-family: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  color: var(--ink);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; display: block; }
+ul { list-style: none; }
+a { color: inherit; }
+
+/* cinematic vignette over the whole shop (fixed, above the 3D scene) */
+body::after {
+  content: "";
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 15;
+  background:
+    radial-gradient(ellipse 130% 95% at 50% 32%, transparent 48%, rgba(13,15,19,.30) 86%, rgba(9,11,14,.5) 100%);
+}
+
+/* measurement / reduced-motion helper: kill transitions instantly */
+body.no-anim *, body.no-anim *::before, body.no-anim *::after {
+  transition: none !important;
+  animation: none !important;
+}
+
+/* ---------- Skip link / focus ---------- */
+.skip {
+  position: fixed; left: 10px; top: -60px; z-index: 100;
+  background: #ffd76a; color: #171310; font: 700 12px "IBM Plex Mono", monospace;
+  letter-spacing: .08em; padding: 9px 14px; border-radius: 4px;
+  transition: top .15s;
+}
+.skip:focus { top: 10px; }
+.drawer-front:focus-visible,
+.ins-close:focus-visible,
+.tag-btn:focus-visible,
+.biz-card a:focus-visible,
+.header-links a:focus-visible,
+.shop-footer a:focus-visible,
+.lb-close:focus-visible {
+  outline: 3px solid #ffd76a; outline-offset: 2px;
+}
+
+/* ---------- Top bar ---------- */
+.shop-header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 16px;
+  padding: 11px 20px;
+  background: #14161a;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  color: #eef0f2;
+}
+.brand { display: flex; align-items: center; gap: 10px; font: 700 12px "IBM Plex Mono", monospace; letter-spacing: .18em; }
+.brand-mark { display: inline-flex; color: #f3d0cf; }
+.brand-mark img { width: 26px; height: 26px; object-fit: contain; filter: invert(1); }
+.brand-text em { font-style: normal; font-weight: 500; opacity: .75; margin-left: 10px; letter-spacing: .1em; }
+.header-links { display: flex; gap: 18px; }
+.header-links a {
+  font: 600 11px "IBM Plex Mono", monospace; letter-spacing: .14em;
+  text-decoration: none; color: #e9ecef; opacity: .9;
+  border-bottom: 1px solid rgba(255,255,255,.28); padding-bottom: 2px;
+}
+.header-links a:hover { opacity: 1; border-color: #fff; }
+
+/* ==========================================================================
+   THE STAGE — perspective camera looking into the shop
+   ========================================================================== */
+.stage {
+  position: relative;
+  height: calc(100vh - 34px);
+  min-height: 540px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #565b62 0%, #4b5056 55%, #3f4348 100%);
+  perspective: 1600px;
+  /* fixed (not %-of-height) so projections don't drift with viewport height */
+  perspective-origin: 50% 262px;
+}
+
+/* the whole shop lives in .world; the camera pivots to look into each drawer */
+.world {
+  position: absolute; left: 50%; bottom: 8px;
+  width: 0; height: 0;
+  transform-style: preserve-3d;
+  transform: translateY(0px) rotateX(0deg) scale3d(var(--fit), var(--fit), var(--fit));
+  transition: transform 1.05s cubic-bezier(.32,.42,.22,1), transform-origin 1.05s cubic-bezier(.32,.42,.22,1);
+}
+body.drawer-open .world {
+  /* --s (per drawer) is the sheet's world-px extent above the anchor; the
+     162px/100vh term keeps the sheet top viewport-invariant. scale3d (not
+     scale): a uniform 3D dolly — the sheet lies in the x-z plane, so a 2D
+     scale magnifies its width but not its depth, squashing the text ~2:1
+     (probe-verified anisotropy 0.49 at oscale 2.35). */
+  transform:
+    translateY(calc(var(--s, 900) * var(--fit) * 1px + 162px - 100vh))
+    rotateX(var(--tilt))
+    scale3d(calc(var(--oscale) * var(--fit)), calc(var(--oscale) * var(--fit)), calc(var(--oscale) * var(--fit)));
+  transition: transform 1s cubic-bezier(.25,.5,.2,1), transform-origin 1s cubic-bezier(.25,.5,.2,1);
+}
+/* framing per drawer (hinge height differs) */
+body[data-open="experience"]           { --s: 712.9; }
+body[data-open="cookie-icing-machine"] { --s: 622.8; }
+body[data-open="digit-thumb"]           { --s: 519.5; }
+body[data-open="solar-canopy"]          { --s: 410.4; }
+body[data-open="dynamometer"]           { --s: 291.1; }
+body[data-open="keychain"]              { --s: 162.9; }
+body[data-open="skills"]                { --s: 25.8; }
+
+/* ==========================================================================
+   THE SHOP — wall & floor
+   ========================================================================== */
+.wall {
+  position: absolute; left: -1700px; top: -1500px;
+  width: 3400px; height: 1500px;
+  transform: translateZ(-560px);
+  background: linear-gradient(180deg, #a2abb4 0%, #98a1aa 46%, #8d96a0 78%, #8399a2 100%);
+}
+.wall-tex {
+  position: absolute; inset: 0;
+  background:
+    /* staggered cinderblock mortar joints (running bond) */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='128'%3E%3Cg stroke='%231c2128' stroke-opacity='.17' stroke-width='2.4' fill='none'%3E%3Cpath d='M0 1h256M0 65h256M0 127h256'/%3E%3Cpath d='M1 0v65M129 0v65M65 65v63M193 65v63'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 256px 128px,
+    /* faint per-block shading */
+    repeating-linear-gradient(180deg, rgba(255,255,255,.045) 0 4px, transparent 4px 64px),
+    /* grime collecting low on the wall */
+    linear-gradient(180deg, rgba(255,255,255,.05) 0 18%, transparent 30%),
+    linear-gradient(0deg, rgba(24,27,32,.22) 0 12%, transparent 34%),
+    /* old water stains */
+    radial-gradient(ellipse 300px 160px at 12% 96%, rgba(52,54,50,.16), transparent 70%),
+    radial-gradient(ellipse 260px 120px at 88% 99%, rgba(52,54,50,.12), transparent 70%);
+}
+/* darker repaint line (wainscot) */
+.wall-tex::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 320px; height: 5px;
+  background: rgba(30,36,44,.18);
+}
+
+/* ----- contact bulletin board (right of cabinet) ----- */
+.pegboard {
+  position: absolute; left: 2230px; top: 985px;
+  width: 470px; height: 470px;
+  background: linear-gradient(180deg, #c19a6b, #b28a5c 60%, #a67f53);
+  border: 10px solid #6e5335;
+  border-radius: 4px;
+  box-shadow:
+    inset 0 0 40px rgba(56,38,20,.35),
+    0 14px 26px -12px rgba(20,24,30,.55);
+  transform: rotate(-.6deg);
+}
+.peg-holes {
+  position: absolute; inset: 8px;
+  background-image: radial-gradient(circle, rgba(40,28,15,.5) 2.1px, transparent 2.7px);
+  background-size: 23px 23px;
+  background-position: 4px 5px;
+}
+/* about sheet - a profile page taped to the wall (left of the cabinet) */
+.about-sheet {
+  position: absolute; left: 485px; top: 578px;
+  width: 730px; min-height: 840px;
+  transform: none;
+  background: #f6f3ea;
+  padding: 24px 30px 20px;
+  display: flex; flex-direction: column;
+  box-shadow: 0 12px 26px -8px rgba(15,18,24,.5);
+  color: #26201a;
+}
+.about-sheet::before, .about-sheet::after {
+  content: ""; position: absolute; width: 88px; height: 24px;
+  background: rgba(246,241,222,.78);
+  box-shadow: 0 1px 2px rgba(20,16,10,.25);
+}
+.about-sheet::before { left: -26px; top: -10px; transform: rotate(-40deg); }
+.about-sheet::after  { right: -26px; top: -10px; transform: rotate(40deg); }
+.sheet-name {
+  font: 800 44px/1.1 Archivo, sans-serif; color: #171310;
+  letter-spacing: .01em; margin-bottom: 5px;
+}
+.sheet-role {
+  font: 600 20px/1.35 "IBM Plex Mono", monospace; color: #702326;
+  letter-spacing: .04em; margin-bottom: 10px;
+  border-bottom: 2px solid rgba(122,42,44,.3); padding-bottom: 8px;
+}
+.sheet-role small { font: 500 .78em/1.3 Archivo, sans-serif; letter-spacing: 0; color: #59431f; }
+.about-sheet p {
+  font: 400 26px/1.42 Archivo, sans-serif; color: #2c2113;
+  margin-bottom: 14px;
+}
+.about-sheet .sheet-lede { font-weight: 600; font-size: 21px; line-height: 1.38; }
+.sheet-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: -2px 0 10px; }
+.sheet-actions-bottom { margin: auto 0 0; padding-top: 14px; border-top: 0; }
+.sheet-actions a { display: inline-block; padding: 11px 14px; border-radius: 3px; font: 700 16px/1.2 "IBM Plex Mono", monospace; text-decoration: none; }
+.sheet-action-primary { color: #fff8eb; background: #b31a1d; border: 1px solid #7c1013; box-shadow: 0 2px 0 #7c1013; }
+.sheet-action-primary:hover { background: #c92428; }
+.sheet-action-secondary { color: #342717; background: #efeadd; border: 1px solid #bca77d; }
+.sheet-action-secondary:hover { background: #fff8eb; }
+.sheet-spec { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 18px; margin-top: 12px; padding-top: 12px; border-top: 2px solid rgba(40,32,26,.25); }
+.sp-courses { grid-column: 1 / -1; }
+.sp { display: block; padding: 8px 0; border-bottom: 1px solid rgba(40,32,26,.2); }
+.sp-k {
+  display: block; margin-bottom: 3px;
+  font: 700 19px/1.4 "IBM Plex Mono", monospace; letter-spacing: .08em;
+  color: #59431f; padding-top: 1px;
+}
+.sp-v { font: 500 20px/1.4 Archivo, sans-serif; color: #2c2113; }
+.sp-v small { color: #59431f; font-weight: 500; }
+.sp-chip {
+  display: inline-block;
+  font: 500 17px "IBM Plex Mono", monospace;
+  color: #3a2c16; background: #efeadd; border: 1px solid #c3ab7c;
+  border-radius: 3px; padding: 3px 8px; margin: 0 4px 4px 0;
+}
+.sp-awards li { font: 500 21px/1.5 Archivo, sans-serif; margin-bottom: 8px; }
+.sp-courses .sp-chip { font-size: 20px; padding: 6px 10px; margin-bottom: 6px; }
+.sp-team .sp-v { font-size: 24px; line-height: 1.55; }
+.sp-awards li::before { content: "\2605 "; color: #a02424; }
+.sheet-pdf {
+  display: inline-block; align-self: flex-start; margin-top: 16px;
+  font: 700 18px "IBM Plex Mono", monospace; letter-spacing: .06em;
+  color: #f8ecd9; text-decoration: none;
+  background: #b31a1d; border: 1px solid #7c1013; border-radius: 3px;
+  padding: 10px 14px;
+  box-shadow: 0 3px 0 #7c1013;
+}
+.sheet-pdf:hover { background: #c92428; }
+
+/* business card = contact, taped to the pegboard */
+.biz-card {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%) rotate(-2.5deg);
+  width: 408px;
+  background: #f7f4ec;
+  border-radius: 3px;
+  padding: 22px 18px 20px;
+  box-shadow: 0 8px 18px -6px rgba(15,18,24,.6);
+  text-align: center;
+  font: 500 19px "IBM Plex Mono", monospace;
+  color: #26201a;
+}
+.biz-card::before, .biz-card::after {   /* masking tape */
+  content: ""; position: absolute; width: 54px; height: 15px;
+  background: rgba(246,241,222,.75);
+  box-shadow: 0 1px 2px rgba(20,16,10,.25);
+}
+.biz-card::before { left: -18px; top: -6px; transform: rotate(-38deg); }
+.biz-card::after  { right: -18px; top: -6px; transform: rotate(38deg); }
+.biz-role { font: 700 15px "IBM Plex Mono", monospace; letter-spacing: .34em; color: #a02424; margin-bottom: 8px; }
+.biz-name { font: 800 27px Archivo, sans-serif; letter-spacing: .02em; margin-bottom: 12px; }
+.biz-card a {
+  display: block; text-decoration: none; color: #26201a;
+  padding: 6px 0; border-bottom: 1px solid rgba(38,32,26,.16);
+}
+.biz-card a:hover { color: #a02424; }
+.biz-pdf { font-weight: 700; color: #a02424 !important; border-bottom: none !important; margin-top: 5px; }
+.biz-resume { font-size: .95em; }
+.biz-pdf + .biz-pdf { border-top: 1px solid rgba(38,32,26,.2); padding-top: 10px; }
+
+/* ----- wall sign (right of cabinet) ----- */
+.wall-sign {
+  position: absolute; left: 2210px; top: 655px;
+  text-align: right;
+}
+.sign-name {
+  font: 900 104px/0.94 Archivo, sans-serif;
+  letter-spacing: .015em;
+  color: #14181d;
+  text-shadow: 0 2px 0 rgba(228,232,236,.5);
+}
+.sign-role {
+  margin-top: 20px;
+  font: 600 18px/1.9 "IBM Plex Mono", monospace;
+  letter-spacing: .18em;
+  color: rgba(24,31,40,.9);
+}
+
+.rec-title {
+  font: 700 20px "IBM Plex Mono", monospace; letter-spacing: .3em;
+  color: rgba(34,41,50,.78);
+  border-bottom: 2px solid rgba(34,41,50,.3);
+  padding-bottom: 8px; margin-bottom: 10px;
+}
+
+/* taped hint note */
+.wall-note {
+  position: absolute; left: 1700px; top: 542px;
+  transform: translateX(-50%) rotate(-.8deg);
+  background: #fff0bd;
+  border: 3px solid #8f171a;
+  padding: 12px 24px 10px;
+  font: 700 30px/1.2 "IBM Plex Mono", monospace;
+  text-align: center;
+  color: #171310;
+  box-shadow: 0 12px 24px -6px rgba(15,18,24,.72), 0 0 0 3px rgba(255,240,189,.8);
+}
+.wall-note::before {
+  content: ""; position: absolute; left: 50%; top: -8px; transform: translateX(-50%) rotate(-1.5deg);
+  width: 78px; height: 17px; background: rgba(246,241,222,.8);
+  box-shadow: 0 1px 2px rgba(20,16,10,.25);
+}
+.wall-note::after {
+  content: "\25BC";
+  display: block;
+  margin-top: 5px;
+  color: #8f171a;
+  font: 900 24px/1 Archivo, sans-serif;
+}
+.note-arrow { color: #a02424; margin-right: 6px; }
+
+/* ----- shop floor (3D plane toward the viewer) ----- */
+.shop-floor {
+  position: absolute; left: -1700px; top: 0;
+  width: 3400px; height: 1500px;
+  transform: rotateX(90deg);
+  transform-origin: top center;
+  background: linear-gradient(180deg, #6f7379, #7d8186 40%, #868a8f 100%);
+}
+/* floor continuation under/behind the cabinet (plugs the wall seam) */
+.floor-back {
+  position: absolute; left: -1700px; top: 0;
+  width: 3400px; height: 560px;
+  transform: rotateX(-90deg);
+  transform-origin: top center;
+  background: #6b6f74;
+}
+.floor-tex { position: absolute; inset: 0; background:
+  /* concrete speckle noise */
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.30 0 0 0 0 0.32 0 0 0 0 0.33 0 0 0 0.10 0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E"),
+  radial-gradient(ellipse 480px 240px at 28% 16%, rgba(46,48,44,.14), transparent 70%),
+  radial-gradient(ellipse 380px 200px at 74% 30%, rgba(40,42,44,.10), transparent 70%),
+  radial-gradient(ellipse 520px 300px at 55% 90%, rgba(90,92,92,.10), transparent 70%);
+}
+.floor-worn-path {  /* swept path in front of the cabinet */
+  position: absolute; left: 50%; top: 0; transform: translateX(-50%);
+  width: 980px; height: 460px;
+  background: linear-gradient(180deg, rgba(226,228,229,.16), rgba(226,228,229,.05) 70%, transparent);
+  border-radius: 40px;
+}
+.floor-stain { position: absolute; border-radius: 50%; }
+.floor-stain.s1 { left: 18%; top: 170px; width: 150px; height: 60px; background: radial-gradient(ellipse, rgba(26,22,16,.28), transparent 68%); }
+.floor-stain.s2 { left: 71%; top: 96px; width: 210px; height: 84px; background: radial-gradient(ellipse, rgba(26,22,16,.2), transparent 66%); }
+.floor-joint { position: absolute; left: 0; right: 0; height: 3px; background: rgba(40,43,47,.3); box-shadow: 0 1px 0 rgba(255,255,255,.14); }
+.floor-joint.j1 { top: 430px; }
+.floor-joint.j2 { top: 940px; }
+.cab-shadow {
+  position: absolute; left: 50%; top: 2px; transform: translateX(-50%);
+  width: 800px; height: 90px;
+  background: radial-gradient(ellipse at 50% 40%, rgba(10,9,9,.5), transparent 72%);
+}
+.floor-dim {
+  position: absolute; inset: 0; background: #0b0d11; opacity: 0;
+  transition: opacity .9s ease;
+}
+body.drawer-open .floor-dim { opacity: .34; }
+
+/* wall decor fades away while a drawer is open (keeps the header band clear) */
+.wall-sign, .wall-note, .pegboard, .about-sheet { transition: opacity .55s ease; }
+body.drawer-open .wall-sign,
+body.drawer-open .wall-note,
+body.drawer-open .pegboard,
+body.drawer-open .about-sheet { opacity: 0; pointer-events: none; }
+
+/* ==========================================================================
+   THE CABINET
+   ========================================================================== */
+.cabinet {
+  position: absolute; left: -350px; top: -760px;
+  width: 700px; height: 760px;
+  transform-style: preserve-3d;
+}
+
+/* black rubber top mat (visible once the camera rises) */
+.cab-top {
+  position: absolute; left: -10px; right: -10px; bottom: 100%;
+  height: 380px;
+  transform: rotateX(90deg);
+  transform-origin: bottom center;
+  background:
+    radial-gradient(circle 30px at 30% 24%, transparent 0 24px, rgba(94,58,28,.3) 25px 29px, transparent 30px),
+    radial-gradient(ellipse 130px 40px at 70% 70%, rgba(255,255,255,.05), transparent 70%),
+    linear-gradient(180deg, #131417, #1b1c20 60%, #101114);
+  box-shadow: 0 0 44px rgba(5,6,9,.5);
+  border-radius: 3px;
+}
+
+/* base plinth */
+.cab-base {
+  position: absolute; left: -8px; right: -8px; bottom: 0; height: 14px;
+  background: linear-gradient(180deg, #5c0d10, #38070a);
+  border-radius: 2px;
+}
+
+
+
+
+/* the frame the drawers sit in */
+.cab-frame {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 8px 10px 8px;
+  background: linear-gradient(180deg, #8e1418 0 14px, #6b0e12 14px calc(100% - 48px), #4d0a0d calc(100% - 48px));
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,.22);
+  transform-style: preserve-3d;
+}
+/* the rubber mat's front edge, seen head-on when closed */
+.cab-frame::before {
+  content: ""; position: absolute; top: -7px; left: -10px; right: -10px; height: 7px;
+  background: linear-gradient(180deg, #2c2e33, #131417);
+  border-radius: 2px 2px 0 0;
+  box-shadow: 0 1px 2px rgba(0,0,0,.5);
+}
+
+/* ==========================================================================
+   DRAWERS
+   ========================================================================== */
+.drawer {
+  position: relative;
+  flex: 0 0 auto;
+  transform-style: preserve-3d;
+}
+.d-2 { height: 72px; }   /* EXPERIENCE */
+.d-3 { height: 88px; }   /* 01 cookie icing machine */
+.d-4 { height: 96px; }   /* 02 mechanical thumb */
+.d-5 { height: 104px; }  /* 03 solar canopy */
+.d-6 { height: 112px; }  /* 04 dynamometer */
+.d-7 { height: 120px; }  /* 05 keychain */
+.d-8 { height: 128px; }  /* SKILLS */
+
+/* dark interior, seen through an open drawer */
+.drawer-interior {
+  position: absolute; inset: 0;
+  transform: translateZ(-6px);
+  background: linear-gradient(180deg, #160a0c, #0c0507);
+}
+
+/* everything that physically rides the slides */
+.drawer-slider {
+  position: absolute; inset: 0;
+  transform-style: preserve-3d;
+  transform: translateZ(0);
+  transition: transform .55s cubic-bezier(.5,0,.68,.34);
+}
+.drawer.open .drawer-slider {
+  transform: translateZ(var(--d));
+  transition: transform .72s cubic-bezier(.19,.72,.24,1);
+}
+
+/* ----- drawer front face (the button) ----- */
+.drawer-front {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: stretch; justify-content: center;
+  gap: 7px;
+  padding: 7px 26px 10px;
+  transform: translateZ(3px);
+  border: none; cursor: pointer; text-align: left;
+  font-family: inherit;
+  border-radius: 2px;
+  background: linear-gradient(180deg,
+    #e2453e 0%, #cd2724 7%, #c02023 42%, #b31c1f 80%, #971317 100%);
+  box-shadow:
+    inset 0 2px 2px rgba(255,255,255,.22),
+    inset 0 -3px 5px rgba(30,2,3,.42),
+    inset 2px 0 3px rgba(255,255,255,.07),
+    inset -2px 0 3px rgba(0,0,0,.16),
+    0 2px 0 rgba(38,4,5,.55);
+  transition: transform .22s ease, box-shadow .22s ease;
+}
+.drawer-front:hover {
+  transform: translateZ(8px);
+  box-shadow:
+    inset 0 2px 2px rgba(255,255,255,.26),
+    inset 0 -3px 5px rgba(30,2,3,.4),
+    inset 2px 0 3px rgba(255,255,255,.09),
+    inset -2px 0 3px rgba(0,0,0,.14),
+    inset 0 0 0 100px rgba(255,255,255,.05),
+    0 4px 8px rgba(20,2,3,.5);
+}
+
+/* dymo embossed-tape label */
+.dymo {
+  align-self: flex-start;
+  font: 600 12px/1 "IBM Plex Mono", monospace;
+  letter-spacing: .2em;
+  background: var(--tape);
+  color: #171310;
+  padding: 5px 8px 4px 10px;
+  border-radius: 1.5px;
+  transform: rotate(-.6deg);
+  box-shadow:
+    0 2px 3px rgba(24,3,4,.5),
+    inset 0 0 0 1px rgba(0,0,0,.06),
+    inset 0 1px 0 rgba(255,255,255,.7);
+  text-shadow: 0 1px 0 rgba(255,255,255,.5);
+  white-space: nowrap;
+}
+.dymo-sm { font-size: 10px; }
+
+/* Larger physical tape labels without enlarging the cabinet or its drawers. */
+.drawer-front { gap: 5px; padding-top: 5px; padding-bottom: 7px; }
+.drawer-front > .dymo {
+  font-size: 17.5px; /* 1.46x the former 12px */
+  letter-spacing: .12em;
+  padding: 7px 11px 6px 13px;
+  max-width: 100%;
+}
+
+/* full-width chrome bar pull */
+.pull {
+  height: 9px; border-radius: 5px;
+  background: linear-gradient(180deg,
+    #fbfcfd, #ccd2d6 38%, #8e979e 54%, #c4cace 74%, #eef0f2);
+  box-shadow: 0 2px 3px rgba(24,3,4,.55), inset 0 1px 0 #fff;
+}
+
+/* keyed lock on the top drawer */
+.lock {
+  position: absolute; left: 148px; top: 11px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background:
+    radial-gradient(circle 3px at 50% 58%, #2c2e31 0 2.6px, transparent 3px),
+    linear-gradient(160deg, #f2f4f6, #b9bfc5 55%, #82898f);
+  box-shadow: 0 1px 2px rgba(24,3,4,.5), inset 0 1px 0 #fff;
+  position: relative;
+}
+.lock::after {
+  content: ""; position: absolute; left: 50%; top: 46%;
+  transform: translateX(-50%);
+  width: 2.5px; height: 9px; background: #2c2e31; border-radius: 1px;
+}
+
+/* wear & scratches — "obviously well used" */
+.wear {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(104deg, transparent 40%, rgba(255,255,255,.09) 41%, transparent 42.5%),
+    linear-gradient(97deg,  transparent 63%, rgba(0,0,0,.16) 64%, transparent 65.5%),
+    linear-gradient(101deg, transparent 21%, rgba(255,255,255,.07) 22%, transparent 23.5%),
+    linear-gradient(99deg,  transparent 84%, rgba(0,0,0,.15) 85%, transparent 86.5%),
+    linear-gradient(93deg,  transparent 51%, rgba(255,255,255,.06) 51.7%, transparent 52.4%),
+    radial-gradient(ellipse 130px 18px at 16% 90%, rgba(0,0,0,.26), transparent 72%),
+    radial-gradient(ellipse 90px 12px at 84% 26%, rgba(0,0,0,.2), transparent 72%),
+    radial-gradient(ellipse 60px 10px at 62% 72%, rgba(255,255,255,.08), transparent 70%),
+    radial-gradient(ellipse 170px 22px at 30% 58%, rgba(0,0,0,.16), transparent 74%),
+    radial-gradient(ellipse 70px 26px at 96% 82%, rgba(0,0,0,.22), transparent 70%),
+    radial-gradient(ellipse 54px 40px at 4% 18%, rgba(0,0,0,.2), transparent 72%);
+}
+
+/* ----- drawer box sides (chrome slides) ----- */
+.rail-l, .rail-r {
+  position: absolute; top: 9px; bottom: 0; width: var(--d);
+  pointer-events: none;
+  background: linear-gradient(180deg,
+    #2a0c0e 0 18%, #dfe3e7 18% 33%, #9aa1a8 33% 40%,
+    #3a1114 40% 50%, #c9ced3 50% 62%, #8e979e 62% 68%, #2a0c0e 68% 100%);
+  box-shadow: inset 0 0 12px rgba(0,0,0,.5);
+}
+.rail-l { left: -9px;  transform: rotateY(90deg);  transform-origin: left center; }
+.rail-r { right: -9px; transform: rotateY(-90deg); transform-origin: right center; }
+
+/* ----- the tray (drawer floor: liner + foam cut-outs) ----- */
+.tray {
+  position: absolute; left: 12px; right: 12px; bottom: 0;
+  height: var(--d);
+  transform: rotateX(90deg);
+  transform-origin: bottom center;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.045), transparent 24%),
+    linear-gradient(0deg, rgba(0,0,0,.28), transparent 30%),
+    #232629;
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,.35);
+}
+.liner-cut {
+  position: absolute; left: 26px; right: 26px; top: 26px; height: 120px;
+  border: 1.5px solid rgba(255,255,255,.06);
+  background: rgba(0,0,0,.3);
+  box-shadow: inset 0 2px 6px rgba(0,0,0,.5);
+}
+
+/* ==========================================================================
+   THE INSERT - the project sheet, lying flat in the drawer.
+   Same construction as the tray: hinged at the drawer's front lip,
+   rotateX(90deg), co-planar with (a hair above) the tray floor. It rides
+   the slider - closed: tucked inside the box; open: lying flat in the
+   drawer while the camera swings overhead to read it.
+   ========================================================================== */
+.drawer-insert {
+  position: absolute; left: 4px; right: 4px; bottom: 3px;
+  height: calc(var(--d) - 14px);
+  transform: rotateX(90deg);
+  transform-origin: bottom center;
+  visibility: hidden;
+  transition: visibility 0s linear .12s;
+}
+.drawer.open .drawer-insert {
+  visibility: visible;
+  transition: visibility 0s;
+}
+
+/* the physical sheet - a technical drawing lying in the drawer.
+   --fscale sizes the whole sheet layout: ~0.81 in the 3D scene (readable
+   once the camera dollies in), 1 in flat list mode. */
+.ins-card {
+  --fscale: 1;
+  height: calc(100% - 10px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #8a6c42 #cdb088;
+  background:
+    radial-gradient(ellipse 340px 200px at 18% 6%, rgba(255,255,255,.16), transparent 70%),
+    radial-gradient(ellipse 300px 260px at 92% 96%, rgba(120,84,40,.16), transparent 70%),
+    linear-gradient(180deg, #e0c49b, #d5b586 55%, #cbab7c);
+  border: 3px solid rgba(122,92,52,.55);
+  outline: 1px solid rgba(122,92,52,.3);
+  outline-offset: 3px;
+  border-radius: 3px;
+  box-shadow:
+    0 10px 18px -10px rgba(9,6,4,.5),
+    inset 0 0 0 1px rgba(255,255,255,.25);
+  padding: calc(22px * var(--fscale)) calc(26px * var(--fscale)) 46px;
+  color: var(--ink);
+}
+
+/* content cascade when the drawer opens */
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(calc(24px * var(--fscale))); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.drawer.open .ins-card > * {
+  animation: riseIn .5s cubic-bezier(.2,.7,.3,1) backwards;
+}
+.drawer.open .ins-card > *:nth-child(1)  { animation-delay: .45s; }
+.drawer.open .ins-card > *:nth-child(2)  { animation-delay: .52s; }
+.drawer.open .ins-card > *:nth-child(3)  { animation-delay: .59s; }
+.drawer.open .ins-card > *:nth-child(4)  { animation-delay: .66s; }
+.drawer.open .ins-card > *:nth-child(5)  { animation-delay: .73s; }
+.drawer.open .ins-card > *:nth-child(6)  { animation-delay: .8s; }
+.drawer.open .ins-card > *:nth-child(7)  { animation-delay: .87s; }
+.drawer.open .ins-card > *:nth-child(8)  { animation-delay: .94s; }
+.drawer.open .ins-card > *:nth-child(9)  { animation-delay: 1.01s; }
+.drawer.open .ins-card > *:nth-child(10) { animation-delay: 1.08s; }
+.drawer.open .ins-card > *:nth-child(11) { animation-delay: 1.15s; }
+.drawer.open .ins-card > *:nth-child(12) { animation-delay: 1.22s; }
+.drawer.open .ins-card > *:nth-child(13) { animation-delay: 1.29s; }
+.drawer.open .ins-card > *:nth-child(n+14) { animation-delay: 1.35s; }
+
+/* sheet header strip - the drawing title block */
+.ins-head {
+  display: flex; flex-wrap: nowrap; min-width: 0; align-items: center; gap: calc(10px * var(--fscale));
+  padding-bottom: calc(10px * var(--fscale)); margin-bottom: calc(12px * var(--fscale));
+  border-bottom: calc(2px * var(--fscale) + 1px) dashed rgba(122,92,52,.45);
+}
+.ins-head .dymo { transform: rotate(-.4deg); flex: 1 1 auto; min-width: 0; max-width: 52%; white-space: normal; line-height: 1.2; font-size: calc(15px * var(--fscale)); padding: calc(5px * var(--fscale)) calc(8px * var(--fscale)) calc(4px * var(--fscale)) calc(10px * var(--fscale)); }
+.ins-dwg {
+  margin-left: auto;
+  flex: 0 0 auto; white-space: nowrap;
+  font: 600 calc(11px * var(--fscale))/1 "IBM Plex Mono", monospace; letter-spacing: calc(1.5px * var(--fscale));
+  color: rgba(43,29,12,.8);
+}
+.ins-close {
+  font: 700 calc(10px * var(--fscale))/1 "IBM Plex Mono", monospace; letter-spacing: calc(1.4px * var(--fscale));
+  flex: 0 0 auto; white-space: nowrap;
+  color: #3d2b12;
+  background: linear-gradient(180deg, #f0ece0, #ddd4bd);
+  border: 1px solid #b5a377;
+  border-radius: 3px;
+  padding: calc(7px * var(--fscale)) calc(10px * var(--fscale));
+  cursor: pointer;
+  box-shadow: 0 2px 0 #b5a377, inset 0 1px 0 #fff;
+}
+.ins-close:hover { background: linear-gradient(180deg, #fbf8ef, #e8e0cb); }
+.ins-close:active { transform: translateY(1px); box-shadow: 0 1px 0 #b5a377; }
+.ins-close span { color: #a02424; margin-right: calc(6px * var(--fscale)); }
+
+/* sheet typography */
+.ins-card h2 {
+  font: 800 calc(26px * var(--fscale))/1.08 Archivo, sans-serif;
+  letter-spacing: -.01em;
+  color: #1f1508;
+  margin: calc(1px * var(--fscale)) 0 calc(2px * var(--fscale));
+}
+.ins-title-row { display: flex; align-items: center; gap: calc(10px * var(--fscale)); margin: calc(1px * var(--fscale)) 0 calc(3px * var(--fscale)); }
+.ins-title-row h2 { flex: 1 1 auto; min-width: 0; margin: 0; }
+.ins-role {
+  font: 600 calc(13px * var(--fscale))/1.45 "IBM Plex Mono", monospace; letter-spacing: calc(1.2px * var(--fscale));
+  color: #7a5a2c; text-transform: uppercase;
+  margin-bottom: calc(10px * var(--fscale));
+  text-wrap: balance;
+}
+.ins-lede { font-weight: 600; }
+.ins-card p.ins-meta {
+  font: 500 calc(13px * var(--fscale))/1.45 "IBM Plex Mono", monospace; letter-spacing: calc(.35px * var(--fscale));
+  color: #6b4d24; margin-bottom: calc(6px * var(--fscale));
+  text-wrap: balance;
+}
+.ins-card p {
+  font: 400 calc(15px * var(--fscale))/1.38 Archivo, sans-serif;
+  color: #2c2113;
+  margin-bottom: calc(4px * var(--fscale));
+}
+.ins-card p.image-hint { font: 700 calc(10px * var(--fscale))/1.3 "IBM Plex Mono", monospace; margin: calc(2px * var(--fscale)) 0 calc(8px * var(--fscale)) auto; }
+.ins-card p.scroll-cue { clear: both; text-align: right; color: #59431f; font: 600 calc(10px * var(--fscale))/1.3 "IBM Plex Mono", monospace; letter-spacing: .08em; margin: calc(5px * var(--fscale)) 0 calc(10px * var(--fscale)); }
+.page-cues {
+  flex: 0 0 auto; display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+  gap: calc(3px * var(--fscale)); width: fit-content; max-width: 48%;
+  margin: 0 0 0 auto;
+  padding: calc(5px * var(--fscale)) calc(9px * var(--fscale));
+  border: 1px solid rgba(89,67,31,.48); border-radius: 2px; background: rgba(246,243,234,.35);
+  color: #59431f; font: 600 calc(10px * var(--fscale))/1.2 "IBM Plex Mono", monospace;
+  letter-spacing: .035em; text-transform: uppercase;
+}
+.page-cues span { white-space: nowrap; }
+.page-cues span:first-child { font-size: calc(9px * var(--fscale)); }
+.xp-resume { display: inline-flex; margin: 0 0 calc(9px * var(--fscale)); font-size: calc(11px * var(--fscale)); padding: calc(5px * var(--fscale)) calc(8px * var(--fscale)); }
+.ins-card p strong { color: #16100a; }
+.ins-label {
+  clear: both;
+  font: 700 calc(12px * var(--fscale))/1 "IBM Plex Mono", monospace;
+  letter-spacing: calc(2px * var(--fscale));
+  color: #a02424;
+  margin: calc(7px * var(--fscale)) 0 calc(3px * var(--fscale));
+  display: flex; align-items: center; gap: calc(8px * var(--fscale));
+}
+.ins-label.story-inline { clear: none; }
+.image-hint {
+  display: table; margin: calc(2px * var(--fscale)) 0 calc(8px * var(--fscale)) auto;
+  padding: calc(3px * var(--fscale)) calc(7px * var(--fscale));
+  border: 1px solid rgba(89,67,31,.55); border-radius: 2px;
+  background: rgba(246,243,234,.42);
+  text-align: right; color: #59431f;
+  font: 700 calc(10px * var(--fscale))/1.3 "IBM Plex Mono", monospace;
+  letter-spacing: .06em; text-transform: uppercase;
+}
+.ins-label::after {
+  content: ""; flex: 1; height: 1px;
+  background: repeating-linear-gradient(90deg, rgba(160,36,36,.5) 0 6px, transparent 6px 11px);
+}
+
+/* photo pinned to the sheet */
+.ins-media {
+  float: right;
+  width: calc(232px * var(--fscale)); margin: calc(3px * var(--fscale)) 0 calc(9px * var(--fscale)) calc(12px * var(--fscale));
+  background: #f6f3ea;
+  padding: calc(6px * var(--fscale));
+  padding-bottom: calc(16px * var(--fscale));
+  transform: rotate(1.6deg);
+  box-shadow: 0 10px 20px -8px rgba(40,28,12,.55);
+}
+.ins-media img { width: 100%; height: calc(158px * var(--fscale)); object-fit: cover; object-position: left top; background: #191b1e; }
+
+/* project photos sit beside the paragraph they illustrate */
+.story-photo {
+  float: right; width: 34%; max-width: 310px; min-width: 170px;
+  margin: 0 0 calc(10px * var(--fscale)) calc(16px * var(--fscale));
+  padding: calc(6px * var(--fscale));
+  background: #f6f3ea; border: 1px solid rgba(122,92,52,.48);
+  box-shadow: 0 6px 14px -8px rgba(40,28,12,.65);
+}
+.story-photo.left { float: left; margin: 0 calc(16px * var(--fscale)) calc(10px * var(--fscale)) 0; }
+.story-photo.digit-photo { width: 40%; max-width: 360px; }
+.story-photo.dynamo-photo { width: 42%; max-width: 400px; }
+.story-photo.dynamo-photo img { max-height: calc(270px * var(--fscale)); }
+.story-photo img { display: block; width: 100%; max-height: calc(190px * var(--fscale)); object-fit: contain; background: #e9e5dc; }
+.story-photo figcaption {
+  padding: calc(6px * var(--fscale)) calc(2px * var(--fscale)) 0;
+  color: #59431f;
+  font: 600 calc(10px * var(--fscale))/1.35 "IBM Plex Mono", monospace;
+  letter-spacing: .04em;
+}
+.story-photo.wide {
+  float: none; clear: both; width: min(100%, 540px); max-width: 540px;
+  margin: calc(10px * var(--fscale)) auto calc(12px * var(--fscale));
+}
+.story-photo img, .story-pair img { cursor: zoom-in; }
+.story-photo img:focus-visible, .story-pair img:focus-visible { outline: 3px solid #a02424; outline-offset: 3px; }
+.story-pair {
+  float: right; width: 42%; max-width: 450px; min-width: 260px;
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: calc(8px * var(--fscale));
+  margin: 0 0 calc(10px * var(--fscale)) calc(14px * var(--fscale));
+}
+.story-pair.cookie-pair { width: 46%; max-width: 520px; }
+.story-pair.keychain-pair { width: 38%; max-width: 400px; }
+.story-pair figure {
+  min-width: 0; padding: calc(5px * var(--fscale));
+  background: #f6f3ea; border: 1px solid rgba(122,92,52,.48);
+  box-shadow: 0 5px 12px -8px rgba(40,28,12,.65);
+}
+.story-pair img { display: block; width: 100%; height: calc(150px * var(--fscale)); object-fit: contain; background: #e9e5dc; }
+.story-pair.cookie-pair img, .story-pair.keychain-pair img { height: calc(128px * var(--fscale)); }
+.story-pair figcaption {
+  padding-top: calc(5px * var(--fscale)); color: #59431f;
+  font: 600 calc(10px * var(--fscale))/1.3 "IBM Plex Mono", monospace;
+}
+.project-video {
+  clear: both;
+  width: min(100%, 480px); aspect-ratio: 16 / 9;
+  margin: calc(10px * var(--fscale)) auto calc(14px * var(--fscale));
+  overflow: hidden; background: #151719;
+  border: calc(4px * var(--fscale)) solid #f6f3ea;
+  box-shadow: 0 8px 18px -9px rgba(40,28,12,.7);
+}
+.project-video iframe { display: block; width: 100%; height: 100%; border: 0; }
+.cookie-media-row { clear: both; display: grid; grid-template-columns: minmax(210px, .78fr) minmax(280px, 1fr); align-items: start; gap: calc(14px * var(--fscale)); margin: calc(12px * var(--fscale)) 0 calc(16px * var(--fscale)); }
+.cookie-media-row .dispenser-photo { float: none; width: auto; max-width: none; min-width: 0; margin: 0; }
+.cookie-media-row .dispenser-photo img { max-height: calc(260px * var(--fscale)); }
+.cookie-media-row .project-video { width: 100%; margin: 0 auto calc(8px * var(--fscale)); }
+.cookie-media-row .video-fallback { margin: 0 auto !important; }
+.story-photo.wide.keychain-drawing { width: min(100%, 680px); max-width: 680px; }
+.video-fallback {
+  clear: both; margin: calc(-12px * var(--fscale)) auto calc(18px * var(--fscale)) !important;
+  text-align: center; color: #59431f !important;
+  font-size: calc(10px * var(--fscale)) !important;
+}
+.video-fallback a { color: #8f171a; font-weight: 700; }
+.ins-links { clear: both; }
+
+/* tool-tag chips */
+.chips { display: flex; flex-wrap: wrap; gap: calc(6px * var(--fscale)); }
+.chip {
+  display: inline-flex; align-items: center; gap: calc(5px * var(--fscale));
+  font: 500 calc(12px * var(--fscale))/1.15 "IBM Plex Mono", monospace;
+  color: #3a2c16;
+  background: #f6f2e6;
+  border: 1px solid #c3ab7c;
+  border-radius: 3px;
+  padding: calc(4px * var(--fscale)) calc(8px * var(--fscale)) calc(3px * var(--fscale)) calc(5px * var(--fscale));
+  box-shadow: 0 1px 0 rgba(122,92,52,.5);
+}
+.chip::before {
+  content: ""; width: calc(6px * var(--fscale)); height: calc(6px * var(--fscale)); border-radius: 50%;
+  background: #d8c9a4;
+  box-shadow: inset 0 1px 1.5px rgba(0,0,0,.4);
+  flex: none;
+}
+.ins-chips { margin-bottom: calc(12px * var(--fscale)); }
+.d-3 .ins-chips { flex-wrap: nowrap; justify-content: space-between; width: 100%; gap: calc(4px * var(--fscale)); }
+.d-3 .ins-chips .chip { flex: 0 0 auto; white-space: nowrap; font-size: calc(11px * var(--fscale)); gap: calc(3px * var(--fscale)); padding: calc(4px * var(--fscale)) calc(6px * var(--fscale)); }
+
+/* spec'd metrics - stamped test results */
+.ins-metrics {
+  display: flex; flex-wrap: wrap; gap: calc(8px * var(--fscale)) calc(18px * var(--fscale));
+  margin: 0 0 calc(4px * var(--fscale));
+}
+.ins-metrics li {
+  font: 600 calc(12px * var(--fscale))/1 "IBM Plex Mono", monospace;
+  color: #23381e;
+}
+.ins-metrics li::before {
+  content: "\2713"; margin-right: calc(6px * var(--fscale)); color: #2f7d3a;
+  font-weight: 700;
+}
+
+/* about spec sheet */
+.ins-spec {
+  margin: calc(12px * var(--fscale)) 0 calc(4px * var(--fscale));
+  border-top: 2px solid rgba(122,92,52,.4);
+  display: grid; grid-template-columns: 1fr 1fr; column-gap: calc(26px * var(--fscale));
+}
+.spec-row { display: block; padding: calc(8px * var(--fscale)) 0; border-bottom: 1px solid rgba(122,92,52,.3); }
+.spec-k {
+  display: block;
+  font: 700 calc(10px * var(--fscale))/1 "IBM Plex Mono", monospace; letter-spacing: calc(1.8px * var(--fscale));
+  color: #7a5a2c; margin-bottom: calc(3px * var(--fscale));
+}
+.spec-v { font: 500 calc(12.5px * var(--fscale))/1.5 Archivo, sans-serif; color: #2c2113; }
+.spec-v small { display: block; font-weight: 500; color: #6b5533; }
+.awards li { margin-bottom: calc(4px * var(--fscale)); }
+.awards li::before { content: "\2605 "; color: #a02424; }
+
+/* experience blocks */
+.xp { margin-bottom: calc(10px * var(--fscale)); }
+.xp h3 { font: 700 calc(17px * var(--fscale))/1.25 Archivo, sans-serif; color: #1f1508; margin-bottom: calc(2px * var(--fscale)); }
+.xp .org { color: #a02424; }
+.xp-meta { font: 500 calc(12.5px * var(--fscale))/1.45 "IBM Plex Mono", monospace; letter-spacing: calc(.3px * var(--fscale)); color: #6b4d24; margin-bottom: calc(6px * var(--fscale)); text-wrap: balance; }
+.xp ul li {
+  font: 400 calc(15px * var(--fscale))/1.35 Archivo, sans-serif; color: #2c2113;
+  padding-left: calc(17px * var(--fscale)); position: relative; margin-bottom: calc(3px * var(--fscale));
+}
+.xp ul li::before {
+  content: "\25B8"; position: absolute; left: 0; color: #a02424;
+}
+
+/* skill blocks */
+.skill-block { margin-bottom: calc(10px * var(--fscale)); }
+.skill-block h3 {
+  font: 700 calc(16px * var(--fscale))/1 Archivo, sans-serif; color: #1f1508;
+  margin-bottom: calc(7px * var(--fscale)); display: flex; align-items: center; gap: calc(8px * var(--fscale));
+}
+.idx {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: calc(22px * var(--fscale)); height: calc(22px * var(--fscale)); flex: none;
+  background: #a02424; color: #f6efdd;
+  font: 700 calc(11px * var(--fscale))/1 "IBM Plex Mono", monospace;
+  border-radius: 3px;
+  box-shadow: 0 2px 0 #6d1114;
+}
+
+/* title block - the bordered strip along the bottom of the sheet */
+.ins-tb {
+  display: flex; flex-wrap: wrap; gap: calc(6px * var(--fscale)) calc(14px * var(--fscale));
+  align-items: baseline;
+  margin-top: calc(10px * var(--fscale)); padding-top: calc(7px * var(--fscale));
+  border-top: 2px solid rgba(122,92,52,.55);
+  font: 600 calc(11px * var(--fscale))/1.4 "IBM Plex Mono", monospace;
+  letter-spacing: calc(1px * var(--fscale));
+  color: rgba(43,29,12,.92);
+}
+.ins-tb .tb-co { color: #a02424; font-weight: 700; }
+.ins-tb .tb-scale { margin-left: auto; }
+
+/* action links - stencil-painted buttons */
+.ins-links {
+  display: flex; flex-wrap: wrap; gap: calc(9px * var(--fscale));
+  margin-top: calc(8px * var(--fscale)); padding-top: calc(8px * var(--fscale));
+  border-top: calc(2px * var(--fscale) + 1px) dashed rgba(122,92,52,.45);
+}
+.tag-btn {
+  display: inline-block;
+  font: 700 calc(12px * var(--fscale))/1 "IBM Plex Mono", monospace; letter-spacing: calc(1.1px * var(--fscale));
+  color: #f8ecd9; text-decoration: none;
+  background: #b31a1d;
+  border: 1px solid #7c1013;
+  border-radius: 3px;
+  padding: calc(9px * var(--fscale)) calc(13px * var(--fscale));
+  cursor: pointer;
+  box-shadow: 0 3px 0 #7c1013, inset 0 1px 0 rgba(255,255,255,.18);
+}
+.tag-btn:hover { background: #c92428; }
+.tag-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #7c1013; }
+.ins-card a.xp-resume { margin: 0 0 calc(5px * var(--fscale)); padding: calc(4px * var(--fscale)) calc(7px * var(--fscale)); font: 700 calc(10px * var(--fscale))/1 "IBM Plex Mono", monospace; letter-spacing: calc(.7px * var(--fscale)); }
+
+
+/* ==========================================================================
+   Lightbox (demo videos)
+   ========================================================================== */
+.lightbox {
+  position: fixed; inset: 0; margin: auto;
+  box-sizing: border-box;
+  border: none; padding: 12px; background: #14161a;
+  width: max-content; max-width: min(92vw, 1200px); max-height: 95vh;
+  overflow: auto; box-shadow: 0 30px 60px rgba(0,0,0,.6);
+}
+.lightbox::backdrop { background: rgba(8,9,12,.85); }
+.lightbox video {
+  display: block; width: min(92vw, 920px); max-width: 100%;
+  background: #000;
+  border: 3px solid #d9bc92;
+  border-radius: 4px;
+  box-shadow: 0 30px 60px rgba(0,0,0,.6);
+}
+.lightbox .lb-image {
+  display: block; width: auto; max-width: calc(92vw - 24px); max-height: 78vh;
+  object-fit: contain; background: #f6f3ea;
+  border: 3px solid #d9bc92; border-radius: 4px;
+}
+.lightbox .lb-image[hidden], .lightbox video[hidden], .lightbox .lb-caption:empty { display: none; }
+.lightbox .lb-caption { margin: 8px 0 0; color: #f4ead6; text-align: center; font: 600 12px/1.4 "IBM Plex Mono", monospace; }
+.lb-close {
+  display: block; margin: 14px auto 0;
+  font: 700 11px "IBM Plex Mono", monospace; letter-spacing: .14em;
+  color: #f4ead6; background: #b31a1d;
+  border: 1px solid #7c1013; border-radius: 3px;
+  padding: 9px 16px; cursor: pointer;
+  box-shadow: 0 3px 0 #7c1013;
+}
+.lb-close:active { transform: translateY(1px); box-shadow: 0 1px 0 #7c1013; }
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+.shop-footer {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 20;
+  display: flex; justify-content: space-between; align-items: center; gap: 14px;
+  height: 34px; padding: 0 20px;
+  background: #14161a;
+  color: #a9aeb6;
+  font: 500 10px "IBM Plex Mono", monospace; letter-spacing: .08em;
+}
+.shop-footer a { color: #d8b48a; text-decoration: none; }
+.shop-footer a:hover { color: #efd0aa; }
+
+/* ==========================================================================
+   Fit-to-viewport scaling (width first, height wins)
+   ========================================================================== */
+@media (max-width: 1180px) { .world { --fit: .84; } }
+@media (max-width: 1000px) { .world { --fit: .76; } }
+@media (max-height: 880px) { .world { --fit: .86; } }
+@media (max-height: 780px) { .world { --fit: .74; } }
+@media (max-height: 660px) { .world { --fit: .62; } }
+
+/* ==========================================================================
+   Reduced motion — states still change, motion nearly instant
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .world, .drawer-slider, .drawer-insert, .floor-dim {
+    transition-duration: .01s !important;
+    transition-delay: 0s !important;
+  }
+  .drawer.open .ins-card > * { animation: none !important; }
+}
+
+/* ==========================================================================
+   LIST MODE — small screens: same DOM, flat presentation
+   ========================================================================== */
+@media (max-width: 860px) {
+  html, body { height: auto; overflow: visible; }
+  .stage {
+    height: auto; min-height: 0; overflow: visible;
+    perspective: none;
+    background: linear-gradient(180deg, #8f98a2 0 200px, #6f7379 200px 100%);
+    padding: 74px 16px 26px;
+  }
+  .world { position: static; width: auto; height: auto; transform: none !important; }
+  .wall-tex, .pegboard, .wall-sign, .wall-note,
+  .shop-floor, .floor-back, .cab-top, .cab-base,
+  .drawer-interior, .rail-l, .rail-r, .tray {
+    display: none !important;
+  }
+  .wall { display: contents; }
+  .about-sheet {
+    position: static; width: auto; max-width: 640px;
+    min-height: 0; padding: 24px 22px;
+    margin: 0 auto 26px; transform: none;
+  }
+  .about-sheet::before { display: none; }
+  .about-sheet p { font-size: 19px; }
+  .sheet-name { font-size: 30px; }
+  .sheet-role { font-size: 16px; }
+  .sp-k { font-size: 13px; }
+  .sheet-spec { grid-template-columns: 1fr; }
+  .sp-v { font-size: 16px; }
+  .sp-team .sp-v { font-size: 16px; }
+  .sp-courses .sp-chip { font-size: 15px; }
+  .sp-chip, .sp-awards li { font-size: 15px; }
+  .about-sheet::after {
+    content: "\25BC OPEN A DRAWER BELOW";
+    position: static; display: block; width: auto; height: auto;
+    top: auto; right: auto; transform: none;
+    background: none; box-shadow: none;
+    text-align: center; white-space: nowrap;
+    font: 700 12px "IBM Plex Mono", monospace; letter-spacing: .12em;
+    color: #a02424; margin-top: 18px; padding: 4px 0;
+  }
+  .ins-head .dymo { display: none; }
+  /* keep the drawer front button + insert card in flow, drop the 3D box */
+  .drawer-slider { display: contents; }
+  body.drawer-open .about-sheet { opacity: 1; pointer-events: auto; }
+  .ins-card { --fscale: 1; }
+  .ins-card a.xp-resume { font-size: 12px; padding: 6px 9px; }
+  .d-3 .ins-chips { flex-wrap: wrap; }
+  .d-3 .ins-chips .chip { white-space: normal; font-size: 12px; padding: 4px 8px 3px 5px; }
+  .cabinet { position: static; width: auto; height: auto; left: auto; top: auto; }
+  .cab-frame {
+    position: static; display: block; padding: 0; background: none; box-shadow: none;
+    max-width: 640px; margin: 0 auto;
+  }
+  .cab-frame::before { display: none; }
+  .drawer { height: auto !important; margin-bottom: 10px; }
+  .drawer-front {
+    position: relative; inset: auto; transform: none;
+    width: 100%; min-height: 54px; padding: 12px 16px; gap: 12px;
+  }
+  .drawer-front:hover { transform: none; }
+  .drawer-front > .dymo {
+    font-size: clamp(11px, 3vw, 17.5px);
+    letter-spacing: .06em;
+    white-space: normal;
+    line-height: 1.25;
+  }
+  .drawer-insert {
+    position: static; height: auto;
+    transform: none !important;
+    display: none;
+  }
+  .drawer.open .drawer-insert {
+    display: block;
+    margin-top: 10px;
+  }
+  .ins-card { height: auto; max-height: none; overflow: visible; }
+  .drawer.open .ins-card > * { animation: none; }
+  .ins-title-row { flex-direction: column; align-items: stretch; gap: 5px; }
+  .page-cues { align-self: flex-end; max-width: 100%; }
+  .ins-media { float: none; width: 100%; margin: 10px 0; transform: none; }
+  .ins-media img { height: 200px; object-fit: cover; }
+  .cookie-media-row { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .cookie-media-row .dispenser-photo { width: min(100%, 440px); margin: 0 auto; }
+  .cookie-media-row .project-video { width: min(100%, 540px); margin: 0 auto 8px; }
+  .story-photo, .story-photo.left, .story-photo.wide, .story-photo.digit-photo, .story-photo.dynamo-photo {
+    float: none; width: min(100%, 540px); max-width: 100%; min-width: 0;
+    margin: 12px auto 16px;
+  }
+  .cookie-media-row .story-photo.dispenser-photo { width: min(100%, 440px); margin: 0 auto; }
+  .story-pair, .story-pair.cookie-pair { float: none; width: min(100%, 540px); max-width: 100%; min-width: 0; margin: 12px auto 16px; }
+  .ins-head { flex-wrap: wrap; }
+  .ins-dwg { display: none; }
+  .wall-sign, .wall-record, .wall-note { display: none; }
+  .shop-header { padding: 10px 16px; }
+  .shop-footer {
+    position: static; height: auto; flex-direction: column; flex-wrap: wrap; gap: 4px;
+    padding: 12px 16px; text-align: center;
+  }
+  .shop-footer span { max-width: 100%; overflow-wrap: anywhere; }
+  body::after { display: none; }
+}
