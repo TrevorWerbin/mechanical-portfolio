@@ -207,6 +207,7 @@
   document.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape') return;
     if (lightbox && lightbox.open) return; /* dialog handles its own Esc */
+    if (isFullscreen()) return; /* let the embedded player exit fullscreen first */
     var d = openDrawerEl();
     if (d) closeDrawer(d);
   });
@@ -230,47 +231,76 @@
   window.addEventListener('hashchange', syncFromHash);
   syncFromHash();
 
-  /* Keep the open card framed after viewport changes. Fullscreen playback in
-     a cross-origin YouTube iframe can resize the parent scene too; wait until
-     fullscreen has exited, then recalibrate the same drawer without losing
-     the reader's scroll position. */
+  /* Fullscreen playback can resize the browser viewport. Preserve the exact
+     open scene before fullscreen and restore it afterward; recalibrating by
+     toggling the drawer or changing its camera offset makes the page jump. */
   var resizeTimer = null;
-  var resizeNeedsCalibration = false;
+  var fullscreenRestoreTimer = null;
+  var fullscreenGuardTimer = null;
+  var fullscreenSnapshot = null;
+  var fullscreenRestorePending = false;
   function isFullscreen() {
     return !!(document.fullscreenElement || document.webkitFullscreenElement);
   }
-  function scheduleReframe(recalibrate) {
-    if (recalibrate) resizeNeedsCalibration = true;
+  function saveFullscreenFrame() {
+    if (fullscreenSnapshot || !isFullscreen()) return;
     var d = openDrawerEl();
-    if (!d || isFullscreen()) return;
+    if (!d) return;
+    var card = d.querySelector('.ins-card');
+    var world = document.getElementById('world');
+    fullscreenSnapshot = {
+      drawerId: d.id,
+      offset: document.body.style.getPropertyValue('--s'),
+      scrollTop: card ? card.scrollTop : 0,
+      origin: world ? world.style.transformOrigin : ''
+    };
+  }
+  function restoreFullscreenFrame() {
+    if (!fullscreenSnapshot) return;
+    if (fullscreenRestoreTimer) window.clearTimeout(fullscreenRestoreTimer);
+    if (fullscreenGuardTimer) window.clearTimeout(fullscreenGuardTimer);
+    fullscreenRestorePending = true;
+    var snapshot = fullscreenSnapshot;
+    fullscreenRestoreTimer = window.setTimeout(function () {
+      fullscreenSnapshot = null;
+      var d = openDrawerEl();
+      if (d && d.id === snapshot.drawerId) {
+        var card = d.querySelector('.ins-card');
+        var world = document.getElementById('world');
+        var wasInstant = document.body.classList.contains('no-anim');
+        document.body.classList.add('no-anim');
+        if (snapshot.offset) document.body.style.setProperty('--s', snapshot.offset);
+        else document.body.style.removeProperty('--s');
+        if (world) world.style.transformOrigin = snapshot.origin;
+        if (card) card.scrollTop = snapshot.scrollTop;
+        void d.offsetWidth;
+        if (!wasInstant) document.body.classList.remove('no-anim');
+      }
+      fullscreenRestoreTimer = null;
+      fullscreenGuardTimer = window.setTimeout(function () {
+        fullscreenRestorePending = false;
+        fullscreenGuardTimer = null;
+      }, 500);
+    }, 180);
+  }
+  function onFullscreenChange() {
+    if (isFullscreen()) saveFullscreenFrame();
+    else restoreFullscreenFrame();
+  }
+  window.addEventListener('resize', function () {
+    if (isFullscreen()) { saveFullscreenFrame(); return; }
+    if (fullscreenSnapshot) { restoreFullscreenFrame(); return; }
+    if (fullscreenRestorePending) return;
+    var d = openDrawerEl();
+    if (!d) return;
     if (resizeTimer) window.clearTimeout(resizeTimer);
     resizeTimer = window.setTimeout(function () {
       var current = openDrawerEl();
-      if (!current || isFullscreen()) return;
-      var shouldCalibrate = resizeNeedsCalibration;
-      resizeNeedsCalibration = false;
-      if (shouldCalibrate) {
-        var ins = insertOf(current);
-        var card = current.querySelector('.ins-card');
-        var scrollTop = card ? card.scrollTop : 0;
-        var wasInstant = document.body.classList.contains('no-anim');
-        /* Solve the new frame in place. calibrate() closes and reopens the
-           drawer as part of its probe, which is disruptive after fullscreen. */
-        document.body.classList.add('no-anim');
-        var s = solveOty(ins, current);
-        if (s !== null) document.body.style.setProperty('--s', s.toFixed(1));
-        void ins.offsetWidth;
-        if (!wasInstant) document.body.classList.remove('no-anim');
-        if (card) card.scrollTop = scrollTop;
-        recheck(current, 2);
-      } else {
-        recheck(current, 1);
-      }
-    }, resizeNeedsCalibration ? 180 : 140);
-  }
-  window.addEventListener('resize', function () { scheduleReframe(true); });
-  document.addEventListener('fullscreenchange', function () { scheduleReframe(true); });
-  document.addEventListener('webkitfullscreenchange', function () { scheduleReframe(true); });
+      if (current && !isFullscreen() && !fullscreenRestorePending) recheck(current, 1);
+    }, 140);
+  });
+  document.addEventListener('fullscreenchange', onFullscreenChange);
+  document.addEventListener('webkitfullscreenchange', onFullscreenChange);
 
   /* ---------- project image and video lightbox ---------- */
   if (lightbox && lbVideo) {
