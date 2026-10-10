@@ -230,16 +230,39 @@
   window.addEventListener('hashchange', syncFromHash);
   syncFromHash();
 
-  /* keep the open card framed on viewport resize */
+  /* Keep the open card framed after viewport changes. Fullscreen playback in
+     a cross-origin YouTube iframe can resize the parent scene too; wait until
+     fullscreen has exited, then recalibrate the same drawer without losing
+     the reader's scroll position. */
   var resizeTimer = null;
-  window.addEventListener('resize', function () {
+  var resizeNeedsCalibration = false;
+  function isFullscreen() {
+    return !!(document.fullscreenElement || document.webkitFullscreenElement);
+  }
+  function scheduleReframe(recalibrate) {
+    if (recalibrate) resizeNeedsCalibration = true;
     var d = openDrawerEl();
-    if (!d) return;
+    if (!d || isFullscreen()) return;
     if (resizeTimer) window.clearTimeout(resizeTimer);
     resizeTimer = window.setTimeout(function () {
-      recheck(d, 1);
-    }, 140);
-  });
+      var current = openDrawerEl();
+      if (!current || isFullscreen()) return;
+      var shouldCalibrate = resizeNeedsCalibration;
+      resizeNeedsCalibration = false;
+      if (shouldCalibrate) {
+        var card = current.querySelector('.ins-card');
+        var scrollTop = card ? card.scrollTop : 0;
+        calibrate(current);
+        if (card) card.scrollTop = scrollTop;
+        recheck(current, 2);
+      } else {
+        recheck(current, 1);
+      }
+    }, resizeNeedsCalibration ? 180 : 140);
+  }
+  window.addEventListener('resize', function () { scheduleReframe(false); });
+  document.addEventListener('fullscreenchange', function () { scheduleReframe(true); });
+  document.addEventListener('webkitfullscreenchange', function () { scheduleReframe(true); });
 
   /* ---------- project image and video lightbox ---------- */
   if (lightbox && lbVideo) {
