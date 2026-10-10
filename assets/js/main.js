@@ -23,7 +23,6 @@
   var lbImage = lightbox ? lightbox.querySelector('.lb-image') : null;
   var lbCaption = lightbox ? lightbox.querySelector('.lb-caption') : null;
   var lastImageTrigger = null;
-  var activeProjectVideo = null;
   var TARGET_TOP = 64;   /* projected sheet top when open (px, below header) */
   function targetTop(d) { return TARGET_TOP; }
 
@@ -164,7 +163,6 @@
   function closeDrawer(d, opts) {
     opts = opts || {};
     if (!d || !d.classList.contains('open')) return;
-    if (activeProjectVideo && activeProjectVideo.anchor.closest('.drawer') === d) closeProjectVideo(false);
 
     d.classList.remove('open');
     frontOf(d).setAttribute('aria-expanded', 'false');
@@ -210,7 +208,6 @@
     if (e.key !== 'Escape') return;
     if (lightbox && lightbox.open) return; /* dialog handles its own Esc */
     if (isFullscreen()) return; /* let the embedded player exit fullscreen first */
-    if (activeProjectVideo) return; /* never let player Escape close its drawer */
     var d = openDrawerEl();
     if (d) closeDrawer(d);
   });
@@ -234,127 +231,26 @@
   window.addEventListener('hashchange', syncFromHash);
   syncFromHash();
 
-  /* Fullscreen playback can resize the browser viewport. Preserve the exact
-     open scene before fullscreen and restore it afterward; recalibrating by
-     toggling the drawer or changing its camera offset makes the page jump. */
+  /* An inline YouTube player can resize the viewport when entering or leaving
+     fullscreen. Keep the open drawer's calibrated camera position untouched
+     while its embedded video is present, so minimizing playback returns to the
+     same page position instead of triggering a new camera fit. */
   var resizeTimer = null;
-  var fullscreenRestoreTimer = null;
-  var fullscreenGuardTimer = null;
-  var fullscreenSnapshot = null;
-  var fullscreenRestorePending = false;
   function isFullscreen() {
     return !!(document.fullscreenElement || document.webkitFullscreenElement);
   }
-  function positionProjectVideo() {
-    if (!activeProjectVideo || isFullscreen()) return;
-    var rect = activeProjectVideo.anchor.getBoundingClientRect();
-    var overlay = activeProjectVideo.overlay;
-    overlay.style.left = Math.round(rect.left) + 'px';
-    overlay.style.top = Math.round(rect.top) + 'px';
-    overlay.style.width = Math.max(0, Math.round(rect.width)) + 'px';
-    overlay.style.height = Math.max(0, Math.round(rect.height)) + 'px';
-    overlay.style.display = rect.bottom <= 0 || rect.top >= window.innerHeight ? 'none' : 'block';
-  }
-  function closeProjectVideo(restoreFocus) {
-    if (!activeProjectVideo) return;
-    var trigger = activeProjectVideo.trigger;
-    window.removeEventListener('resize', positionProjectVideo);
-    window.removeEventListener('scroll', positionProjectVideo, true);
-    activeProjectVideo.overlay.remove();
-    activeProjectVideo = null;
-    if (restoreFocus !== false && trigger && trigger.isConnected) trigger.focus({ preventScroll: true });
-  }
-  function openProjectVideo(trigger) {
-    closeProjectVideo(false);
-    var anchor = trigger.closest('.project-video');
-    var overlay = document.createElement('div');
-    overlay.className = 'floating-project-video';
-    var frame = document.createElement('iframe');
-    frame.title = trigger.getAttribute('data-video-title') || 'YouTube project demonstration';
-    frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
-    frame.referrerPolicy = 'strict-origin-when-cross-origin';
-    frame.allowFullscreen = true;
-    frame.src = 'https://www.youtube.com/embed/' + encodeURIComponent(trigger.getAttribute('data-youtube')) + '?autoplay=1&rel=0';
-    var close = document.createElement('button');
-    close.className = 'floating-video-close';
-    close.type = 'button';
-    close.setAttribute('aria-label', 'Close video');
-    close.title = 'Close video';
-    close.textContent = '×';
-    close.addEventListener('click', function () { closeProjectVideo(); });
-    overlay.appendChild(frame);
-    overlay.appendChild(close);
-    document.body.appendChild(overlay);
-    activeProjectVideo = { anchor: anchor, overlay: overlay, trigger: trigger };
-    positionProjectVideo();
-    window.addEventListener('resize', positionProjectVideo);
-    window.addEventListener('scroll', positionProjectVideo, true);
-  }
-  function saveFullscreenFrame() {
-    if (fullscreenSnapshot || !isFullscreen()) return;
-    var d = openDrawerEl();
-    if (!d) return;
-    var card = d.querySelector('.ins-card');
-    var world = document.getElementById('world');
-    fullscreenSnapshot = {
-      drawerId: d.id,
-      offset: document.body.style.getPropertyValue('--s'),
-      scrollTop: card ? card.scrollTop : 0,
-      origin: world ? world.style.transformOrigin : ''
-    };
-  }
-  function restoreFullscreenFrame() {
-    if (!fullscreenSnapshot) return;
-    if (fullscreenRestoreTimer) window.clearTimeout(fullscreenRestoreTimer);
-    if (fullscreenGuardTimer) window.clearTimeout(fullscreenGuardTimer);
-    fullscreenRestorePending = true;
-    var snapshot = fullscreenSnapshot;
-    fullscreenRestoreTimer = window.setTimeout(function () {
-      fullscreenSnapshot = null;
-      var d = openDrawerEl();
-      if (d && d.id === snapshot.drawerId) {
-        var card = d.querySelector('.ins-card');
-        var world = document.getElementById('world');
-        var wasInstant = document.body.classList.contains('no-anim');
-        document.body.classList.add('no-anim');
-        if (snapshot.offset) document.body.style.setProperty('--s', snapshot.offset);
-        else document.body.style.removeProperty('--s');
-        if (world) world.style.transformOrigin = snapshot.origin;
-        if (card) card.scrollTop = snapshot.scrollTop;
-        void d.offsetWidth;
-        if (!wasInstant) document.body.classList.remove('no-anim');
-      }
-      fullscreenRestoreTimer = null;
-      positionProjectVideo();
-      fullscreenGuardTimer = window.setTimeout(function () {
-        fullscreenRestorePending = false;
-        fullscreenGuardTimer = null;
-      }, 500);
-    }, 180);
-  }
-  function onFullscreenChange() {
-    if (isFullscreen()) saveFullscreenFrame();
-    else {
-      restoreFullscreenFrame();
-      window.setTimeout(positionProjectVideo, 240);
-    }
-  }
   window.addEventListener('resize', function () {
-    if (isFullscreen()) { saveFullscreenFrame(); return; }
-    if (fullscreenSnapshot) { restoreFullscreenFrame(); return; }
-    if (fullscreenRestorePending) return;
+    if (isFullscreen()) return;
     if (lightbox && lightbox.open) return;
-    if (activeProjectVideo) { positionProjectVideo(); return; }
     var d = openDrawerEl();
     if (!d) return;
+    if (d.querySelector('.project-video iframe')) return;
     if (resizeTimer) window.clearTimeout(resizeTimer);
     resizeTimer = window.setTimeout(function () {
       var current = openDrawerEl();
-      if (current && !isFullscreen() && !fullscreenRestorePending) recheck(current, 1);
+      if (current && !isFullscreen() && !current.querySelector('.project-video iframe')) recheck(current, 1);
     }, 140);
   });
-  document.addEventListener('fullscreenchange', onFullscreenChange);
-  document.addEventListener('webkitfullscreenchange', onFullscreenChange);
 
   /* ---------- project image and video lightbox ---------- */
   if (lightbox && lbVideo) {
@@ -385,11 +281,6 @@
       });
     });
 
-    document.querySelectorAll('[data-youtube]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        openProjectVideo(btn);
-      });
-    });
     lightbox.addEventListener('close', function () {
       lbVideo.pause();
       lbVideo.removeAttribute('src');
