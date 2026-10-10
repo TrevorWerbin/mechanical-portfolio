@@ -20,6 +20,9 @@
   var drawers = Array.prototype.slice.call(document.querySelectorAll('.drawer'));
   var lightbox = document.getElementById('lightbox');
   var lbVideo = lightbox ? lightbox.querySelector('video') : null;
+  var lbImage = lightbox ? lightbox.querySelector('.lb-image') : null;
+  var lbCaption = lightbox ? lightbox.querySelector('.lb-caption') : null;
+  var lastImageTrigger = null;
   var TARGET_TOP = 64;   /* projected sheet top when open (px, below header) */
   function targetTop(d) { return TARGET_TOP; }
 
@@ -40,8 +43,10 @@
     var world = document.getElementById('world');
     if (world) {
       var frame = d.offsetParent;
+      var cabinet = document.querySelector('.cabinet');
+      var cabinetHeight = cabinet && cabinet.offsetHeight ? cabinet.offsetHeight : 752;
       var originY = frame
-        ? -(752 - (d.offsetTop + d.offsetHeight / 2))
+        ? -(cabinetHeight - (d.offsetTop + d.offsetHeight / 2))
         : -380;
       world.style.transformOrigin = '0px ' + originY.toFixed(0) + 'px';
     }
@@ -86,6 +91,11 @@
     if (s !== null) document.body.style.setProperty('--s', s.toFixed(1));
     /* reset instantly, restore motion, then open for real (animated) */
     clearOpen(d);
+    /* Calibration temporarily pivots around this drawer. Put the closed scene
+       back on the cabinet base before replaying, so each drawer starts from
+       the same camera position and the pivot change animates with the pan. */
+    var world = document.getElementById('world');
+    if (world) world.style.transformOrigin = '0px 0px';
     void ins.offsetWidth;
     if (!wasInstant) document.body.classList.remove('no-anim');
     void ins.offsetWidth;
@@ -159,6 +169,11 @@
     document.body.style.removeProperty('--s');
 
     if (!openDrawerEl()) {
+      /* Return the camera pivot to the cabinet base during the close motion.
+         Leaving a drawer-specific pivot behind shifts the scaled closed scene
+         differently for each drawer. */
+      var world = document.getElementById('world');
+      if (world) world.style.transformOrigin = '0px 0px';
       document.body.classList.remove('drawer-open');
       document.body.removeAttribute('data-open');
       if (opts.updateHash !== false && history.replaceState) {
@@ -226,10 +241,40 @@
     }, 140);
   });
 
-  /* ---------- demo-video lightbox ---------- */
+  /* ---------- project image and video lightbox ---------- */
   if (lightbox && lbVideo) {
+    function previewImage(img) {
+      lastImageTrigger = img;
+      lbVideo.pause();
+      lbVideo.hidden = true;
+      lbImage.hidden = false;
+      lbImage.src = img.currentSrc || img.src;
+      lbImage.alt = img.alt || 'Enlarged project image';
+      var figure = img.parentElement;
+      var caption = figure ? figure.querySelector('figcaption') : null;
+      lbCaption.textContent = caption ? caption.textContent : img.alt;
+      lightbox.setAttribute('aria-label', lbCaption.textContent || 'Enlarged project image');
+      lightbox.showModal();
+    }
+
+    document.querySelectorAll('.story-photo img, .story-pair img').forEach(function (img) {
+      img.setAttribute('tabindex', '0');
+      img.setAttribute('role', 'button');
+      img.setAttribute('aria-label', 'Click to magnify: ' + (img.alt || 'project picture'));
+      img.addEventListener('click', function () { previewImage(img); });
+      img.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          previewImage(img);
+        }
+      });
+    });
+
     document.querySelectorAll('[data-video]').forEach(function (btn) {
       btn.addEventListener('click', function () {
+        lbImage.hidden = true;
+        lbVideo.hidden = false;
+        lbCaption.textContent = '';
         lbVideo.src = btn.getAttribute('data-video');
         lightbox.showModal();
         var p = lbVideo.play();
@@ -240,6 +285,13 @@
       lbVideo.pause();
       lbVideo.removeAttribute('src');
       lbVideo.load();
+      lbVideo.hidden = true;
+      lbImage.hidden = true;
+      lbImage.removeAttribute('src');
+      lbCaption.textContent = '';
+      lightbox.setAttribute('aria-label', 'Enlarged project image');
+      if (lastImageTrigger && lastImageTrigger.isConnected) lastImageTrigger.focus();
+      lastImageTrigger = null;
     });
     var lbClose = lightbox.querySelector('[data-lb-close]');
     if (lbClose) lbClose.addEventListener('click', function () { lightbox.close(); });
