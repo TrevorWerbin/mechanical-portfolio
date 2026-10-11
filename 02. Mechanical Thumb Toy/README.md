@@ -1,17 +1,17 @@
-**Skills:** SolidWorks, Iterative Design, Technical Report Writing, 3D Printing
-
-**Objective:** Create a mechanically operated toy for the ME100 course final project.
-
-<table align="right" width="270">
+<table align="right" width="145">
   <tr>
     <td align="center">
       <a href="https://www.youtube.com/watch?v=OHbV8tSdSpw">
-        <img src="./Grasping%20Object.png" alt="Digit grasping an object — click to watch the demo" width="240">
+        <img src="./Grasping%20Object.png" alt="Digit grasping an object — click to watch the demo" width="110">
       </a><br>
       <sub><strong>Grasping test — click to watch the demo</strong></sub>
     </td>
   </tr>
 </table>
+
+**Skills:** SolidWorks, Iterative Design, Technical Report Writing, 3D Printing
+
+**Objective:** Create a mechanically operated toy for the ME100 course final project.
 
 **Outcome:** Worked on a team to design and prototype Digit, a wearable mechanical thumb capable of actuation and grasping. The project applied the engineering design process, 3D modelling, and machine shop skills learned in class. We also assessed the toy’s mechanical viability for potential further development by a company.
 
@@ -21,14 +21,14 @@
 
 In my initial design, I proposed a component that slid onto the user’s thumb and attached to a string to move Digit. Testing showed that this defeated Digit’s role as an additional finger because it relied on the user’s thumb for actuation. I transitioned to wrist-based actuation, freeing all five fingers while enabling controlled movement of Digit. We used this design for the final iteration.
 
-<table>
+<table align="center" width="500">
   <tr>
     <th>First thumb component iteration</th>
     <th>Wrist actuation and center of rotation</th>
   </tr>
   <tr>
-    <td align="center"><img src="./Thumb%20Component%20First%20Iteration.png" alt="First iteration of Digit’s thumb component" width="360"></td>
-    <td align="center"><img src="./Wrist%20Actuation%20-%20Center%20of%20Rotation.png" alt="Wrist actuation and center of rotation" width="360"></td>
+    <td align="center"><img src="./Thumb%20Component%20First%20Iteration.png" alt="First iteration of Digit’s thumb component" width="220"></td>
+    <td align="center"><img src="./Wrist%20Actuation%20-%20Center%20of%20Rotation.png" alt="Wrist actuation and center of rotation" width="220"></td>
   </tr>
 </table>
 
