@@ -220,7 +220,7 @@ body[data-open="skills"]                { --s: 25.8; }
 .about-sheet .sheet-lede { font-weight: 600; font-size: 21px; line-height: 1.38; }
 .sheet-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: -2px 0 10px; }
 .sheet-actions-bottom { margin: auto 0 0; padding-top: 14px; border-top: 0; }
-.sheet-actions a { display: inline-block; padding: 11px 14px; border-radius: 3px; font: 700 16px/1.2 "IBM Plex Mono", monospace; text-decoration: none; }
+.sheet-actions a { display: inline-block; padding: 13px 17px; border-radius: 3px; font: 700 18px/1.2 "IBM Plex Mono", monospace; text-decoration: none; }
 .sheet-action-primary { color: #fff8eb; background: #b31a1d; border: 1px solid #7c1013; box-shadow: 0 2px 0 #7c1013; }
 .sheet-action-primary:hover { background: #c92428; }
 .sheet-action-secondary { color: #342717; background: #efeadd; border: 1px solid #bca77d; }
@@ -278,13 +278,20 @@ body[data-open="skills"]                { --s: 25.8; }
 .biz-role { font: 700 15px "IBM Plex Mono", monospace; letter-spacing: .34em; color: #a02424; margin-bottom: 8px; }
 .biz-name { font: 800 27px Archivo, sans-serif; letter-spacing: .02em; margin-bottom: 12px; }
 .biz-card a {
-  display: block; text-decoration: none; color: #26201a;
-  padding: 6px 0; border-bottom: 1px solid rgba(38,32,26,.16);
+  display: flex; align-items: center; justify-content: center;
+  min-height: 36px; width: min(100%, 300px); margin: 5px auto; padding: 7px 10px;
+  border: 1px solid #d2c3a2; border-radius: 3px;
+  background: #eee8d8; box-shadow: 0 2px 0 #c7b58b;
+  text-decoration: none; color: #26201a;
 }
-.biz-card a:hover { color: #a02424; }
-.biz-pdf { font-weight: 700; color: #a02424 !important; border-bottom: none !important; margin-top: 5px; }
+.biz-card a:hover { color: #a02424; background: #f7f2e6; }
+.biz-pdf { font-weight: inherit; }
 .biz-resume { font-size: .95em; }
-.biz-pdf + .biz-pdf { border-top: 1px solid rgba(38,32,26,.2); padding-top: 10px; }
+.biz-pdf + .biz-pdf { position: relative; }
+.biz-pdf + .biz-pdf::before {
+  content: ""; position: absolute; left: 4%; right: 4%; bottom: calc(100% + 5px);
+  border-top: 1px solid rgba(38,32,26,.2);
+}
 
 /* ----- wall sign (right of cabinet) ----- */
 .wall-sign {
@@ -741,7 +748,11 @@ body.drawer-open .about-sheet { opacity: 0; pointer-events: none; }
 }
 .page-cues span { white-space: nowrap; }
 .page-cues span:first-child { font-size: calc(9px * var(--fscale)); }
-.xp-resume { display: inline-flex; margin: 0 0 calc(9px * var(--fscale)); font-size: calc(11px * var(--fscale)); padding: calc(5px * var(--fscale)) calc(8px * var(--fscale)); }
+.experience-title-row { display: flex; align-items: center; justify-content: space-between; gap: calc(12px * var(--fscale)); margin-bottom: calc(5px * var(--fscale)); }
+.experience-title-main { display: flex; align-items: center; flex-wrap: wrap; gap: calc(12px * var(--fscale)); min-width: 0; }
+.experience-title-main h2 { margin: 0; }
+.experience-title-row p.scroll-cue { clear: none; flex: 0 0 auto; margin: 0; white-space: nowrap; }
+.xp-resume { display: inline-flex; margin: 0; font-size: calc(11px * var(--fscale)); padding: calc(5px * var(--fscale)) calc(8px * var(--fscale)); }
 .ins-card p strong { color: #16100a; }
 .ins-label {
   clear: both;
@@ -958,7 +969,7 @@ body.drawer-open .about-sheet { opacity: 0; pointer-events: none; }
 }
 .tag-btn:hover { background: #c92428; }
 .tag-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #7c1013; }
-.ins-card a.xp-resume { margin: 0 0 calc(5px * var(--fscale)); padding: calc(4px * var(--fscale)) calc(7px * var(--fscale)); font: 700 calc(10px * var(--fscale))/1 "IBM Plex Mono", monospace; letter-spacing: calc(.7px * var(--fscale)); }
+.ins-card a.xp-resume { margin: 0; padding: calc(7px * var(--fscale)) calc(12px * var(--fscale)); font: 700 calc(14px * var(--fscale))/1 "IBM Plex Mono", monospace; letter-spacing: calc(.7px * var(--fscale)); }
 
 
 /* ==========================================================================
@@ -1021,6 +1032,7 @@ body.drawer-open .about-sheet { opacity: 0; pointer-events: none; }
 @media (max-height: 880px) and (min-width: 1001px) { .world { --fit: .74; } }
 @media (max-height: 780px) and (min-width: 1001px) { .world { --fit: .68; } }
 @media (max-height: 660px) and (min-width: 1001px) { .world { --fit: .62; } }
+@media (min-width: 3201px) and (min-height: 1201px) { .world { --fit: .96; } }
 
 /* ==========================================================================
    Reduced motion — states still change, motion nearly instant
@@ -1044,8 +1056,8 @@ body.drawer-open .about-sheet { opacity: 0; pointer-events: none; }
     background: linear-gradient(180deg, #8f98a2 0 200px, #6f7379 200px 100%);
     padding: 74px 16px 26px;
   }
-  .world { position: static; width: auto; height: auto; transform: none !important; }
-  .wall-tex, .pegboard, .wall-sign, .wall-note,
+  .world { position: static; display: flex; flex-direction: column; width: auto; height: auto; transform: none !important; }
+  .wall-tex, .wall-sign, .wall-note,
   .shop-floor, .floor-back, .cab-top, .cab-base,
   .drawer-interior, .rail-l, .rail-r, .tray {
     display: none !important;
@@ -1054,7 +1066,7 @@ body.drawer-open .about-sheet { opacity: 0; pointer-events: none; }
   .about-sheet {
     position: static; width: auto; max-width: 640px;
     min-height: 0; padding: 24px 22px;
-    margin: 0 auto 26px; transform: none;
+    margin: 0 auto 26px; transform: none; order: 1;
   }
   .about-sheet::before { display: none; }
   .about-sheet p { font-size: 19px; }
@@ -1080,10 +1092,10 @@ body.drawer-open .about-sheet { opacity: 0; pointer-events: none; }
   .drawer-slider { display: contents; }
   body.drawer-open .about-sheet { opacity: 1; pointer-events: auto; }
   .ins-card { --fscale: 1; }
-  .ins-card a.xp-resume { font-size: 12px; padding: 6px 9px; }
+  .ins-card a.xp-resume { font-size: 14px; padding: 7px 12px; }
   .d-3 .ins-chips { flex-wrap: wrap; }
   .d-3 .ins-chips .chip { white-space: normal; font-size: 12px; padding: 4px 8px 3px 5px; }
-  .cabinet { position: static; width: auto; height: auto; left: auto; top: auto; }
+  .cabinet { position: static; width: auto; height: auto; left: auto; top: auto; order: 2; }
   .cab-frame {
     position: static; display: block; padding: 0; background: none; box-shadow: none;
     max-width: 640px; margin: 0 auto;
@@ -1109,6 +1121,17 @@ body.drawer-open .about-sheet { opacity: 0; pointer-events: none; }
   .drawer.open .drawer-insert {
     display: block;
     margin-top: 10px;
+  }
+  .pegboard {
+    position: relative; left: auto; top: auto; order: 3;
+    display: flex; align-items: center; justify-content: center;
+    width: min(100%, 640px); height: auto; min-height: 0;
+    margin: 18px auto 24px; padding: 24px 16px;
+    transform: none;
+  }
+  .biz-card {
+    position: relative; left: auto; top: auto; transform: none;
+    width: min(100%, 408px); margin: 0 auto;
   }
   .ins-card { height: auto; max-height: none; overflow: visible; }
   .drawer.open .ins-card > * { animation: none; }
