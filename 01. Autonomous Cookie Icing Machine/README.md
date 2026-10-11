@@ -13,7 +13,7 @@
         <img src="./Icing%20Full%20Pic.png" alt="Completed cookie icing machine — click to watch the video" width="280">
       </a>
       <br>
-      <sub>Completed machine — click to watch the demo</sub>
+      <sub>**Completed machine. Click to watch a demo!**</sub>
     </td>
   </tr>
 </table>
