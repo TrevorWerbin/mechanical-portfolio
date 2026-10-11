@@ -1011,13 +1011,15 @@ body.drawer-open .about-sheet { opacity: 0; pointer-events: none; }
 .shop-footer a:hover { color: #efd0aa; }
 
 /* ==========================================================================
-   Fit-to-viewport scaling (width first, height wins)
+   Fit-to-viewport scaling for the fixed-size 3D shop scene
    ========================================================================== */
-@media (max-width: 1180px) { .world { --fit: .84; } }
-@media (max-width: 1000px) { .world { --fit: .76; } }
-@media (max-height: 880px) { .world { --fit: .86; } }
-@media (max-height: 780px) { .world { --fit: .74; } }
-@media (max-height: 660px) { .world { --fit: .62; } }
+@media (max-width: 1600px) { .world { --fit: .84; } }
+@media (max-width: 1180px) { .world { --fit: .76; } }
+@media (max-width: 1000px) { .world { --fit: .70; } }
+@media (max-height: 1000px) and (min-width: 1001px) { .world { --fit: .78; } }
+@media (max-height: 880px) and (min-width: 1001px) { .world { --fit: .74; } }
+@media (max-height: 780px) and (min-width: 1001px) { .world { --fit: .68; } }
+@media (max-height: 660px) and (min-width: 1001px) { .world { --fit: .62; } }
 
 /* ==========================================================================
    Reduced motion — states still change, motion nearly instant
