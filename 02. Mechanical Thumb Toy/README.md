@@ -32,7 +32,7 @@
 
 **Learning:** I learned how to create independent mechanical motion paths connected to specific hand movements, preventing wrist rotation from unintentionally triggering extension or retraction of Digit. I also learned to use tension and varying string lengths to actuate Digit.
 
-<table>
+<table align="center">
   <tr>
     <th>Initial hand mount</th>
     <th>Revised hand mount</th>
