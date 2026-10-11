@@ -2,9 +2,9 @@
   <tr>
     <td align="center">
       <a href="https://www.youtube.com/watch?v=OHbV8tSdSpw">
-        <img src="./Grasping%20Object.png" alt="Digit grasping an object — click to watch the demo" width="110">
+        <img src="./Grasping%20Object.png" alt="Digit grasping an object. Click to watch the demo" width="110">
       </a><br>
-      <sub><strong>Grasping test — click to watch the demo</strong></sub>
+      <sub><strong>Click to watch a demo!</strong></sub>
     </td>
   </tr>
 </table>
