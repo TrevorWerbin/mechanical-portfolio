@@ -34,8 +34,6 @@ In my initial design, I proposed a component that slid onto the user’s thumb a
 
 **Learning:** I learned how to create independent mechanical motion paths connected to specific hand movements, preventing wrist rotation from unintentionally triggering extension or retraction of Digit. I also learned to use tension and varying string lengths to actuate Digit.
 
-### Additional design photos
-
 <table>
   <tr>
     <th>Initial hand mount</th>
