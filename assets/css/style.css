@@ -1016,6 +1016,7 @@ body.drawer-open .about-sheet { opacity: 0; pointer-events: none; }
 @media (max-width: 1600px) { .world { --fit: .84; } }
 @media (max-width: 1180px) { .world { --fit: .76; } }
 @media (max-width: 1000px) { .world { --fit: .70; } }
+@media (max-height: 1200px) and (min-width: 1601px) { .world { --fit: .84; } }
 @media (max-height: 1000px) and (min-width: 1001px) { .world { --fit: .78; } }
 @media (max-height: 880px) and (min-width: 1001px) { .world { --fit: .74; } }
 @media (max-height: 780px) and (min-width: 1001px) { .world { --fit: .68; } }
