@@ -28,6 +28,20 @@
 
 Image of overall, annotated CAD model , annotated icing dispenser (left to right)
 
-| CAD model | Icing dispenser | Gantry |
-|:--:|:--:|:--:|
-| ![Annotated CAD icing machine model](./CAD%20Icing%20annotated.png) | ![Icing mechanism](./Icing%20Mechanism.png) | ![Gantry](./Gantry.png) |
+<table>
+  <tr>
+    <th>CAD model</th>
+    <th>Icing dispenser</th>
+    <th>Gantry</th>
+  </tr>
+  <tr>
+    <td><img src="./CAD%20Icing%20annotated.png" alt="Annotated CAD model" width="320"></td>
+    <td><img src="./Icing%20Mechanism.png" alt="Annotated icing dispenser" width="320"></td>
+    <td><img src="./Gantry.png" alt="Cookie icing machine gantry" width="320"></td>
+  </tr>
+  <tr>
+    <td><em>Figure 1. Annotated CAD model.</em></td>
+    <td><em>Figure 2. Annotated icing dispenser.</em></td>
+    <td><em>Figure 3. Gantry.</em></td>
+  </tr>
+</table>
