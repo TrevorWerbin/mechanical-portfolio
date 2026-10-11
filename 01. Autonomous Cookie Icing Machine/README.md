@@ -6,7 +6,19 @@
 
 **Outcome:** Worked on a four person team to design and build a dual-axis autonomous cookie icing machine consisting of VEX IQ electronics, a gantry system and tri-colour rotating syringe barrel, driven by a C++ program. We also created a custom HTML interface for users to draw custom designs to send to the machine. The machine met all engineering specifications including completing a decoration cycle in <240 secs, accommodate cookies up to 4 in in diameter and dispense 3 icing colors.
 
-<a href="https://www.youtube.com/watch?v=XftQwnahEic"><img align="right" width="260" src="https://img.youtube.com/vi/XftQwnahEic/hqdefault.jpg" alt="Click to watch the cookie icing machine demonstration"></a>
+<table align="right" width="300">
+  <tr>
+    <td align="center">
+      <a href="https://www.youtube.com/watch?v=XftQwnahEic">
+        <img src="./Icing%20Full%20Pic.png" alt="Completed cookie icing machine — click to watch the video" width="280">
+      </a>
+      <br>
+      <sub>Completed machine — click to watch the demo</sub>
+    </td>
+  </tr>
+</table>
+
+**Video demonstration:** Click the machine photo to watch it draw a user-designed icing pattern.
 
 **Video demonstration:** Click the thumbnail to watch the machine draw a user-designed icing pattern.
 
@@ -16,9 +28,6 @@
 
 Image of overall, annotated CAD model , annotated icing dispenser (left to right)
 
-| CAD model | Icing dispenser | Completed machine |
+| CAD model | Icing dispenser | Gantry |
 |:--:|:--:|:--:|
-| ![Annotated CAD icing machine model](./CAD%20Icing%20annotated.png) | ![Icing mechanism](./Icing%20Mechanism.png) | ![Completed autonomous icing machine](./Icing%20Full%20Pic.png) |
-
-[![Watch the cookie icing machine demo](https://img.youtube.com/vi/XftQwnahEic/hqdefault.jpg)](https://www.youtube.com/watch?v=XftQwnahEic)
-*Click the image to watch the cookie icing machine demo on YouTube.*
+| ![Annotated CAD icing machine model](./CAD%20Icing%20annotated.png) | ![Icing mechanism](./Icing%20Mechanism.png) | ![Gantry](./Gantry.png) |
