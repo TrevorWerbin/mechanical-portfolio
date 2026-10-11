@@ -12,4 +12,7 @@
 
 Image of overall, annotated CAD model , annotated icing dispenser (left to right)
 
-<img width="840" height="600" alt="Autonomous Cookie Icing Machine (1)" src="https://github.com/user-attachments/assets/48c82955-0aa9-4a09-a180-11eba316edf6" />
+| CAD model | Icing dispenser | Completed machine |
+|:--:|:--:|:--:|
+| ![Annotated CAD icing machine model](./CAD%20Icing%20annotated.png) | ![Annotated icing dispenser](./Annotated%20icing%20Dispenser.png) | ![Completed autonomous icing machine](./Icing%20Full%20Pic.png) |
+| *Figure 1. Annotated CAD model.* | *Figure 2. Annotated icing dispenser.* | *Figure 3. Completed icing machine.* |
