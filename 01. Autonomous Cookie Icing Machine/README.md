@@ -15,3 +15,9 @@ Image of overall, annotated CAD model , annotated icing dispenser (left to right
 | CAD model | Icing dispenser | Completed machine |
 |:--:|:--:|:--:|
 | ![Annotated CAD icing machine model](./CAD%20Icing%20annotated.png) | ![Icing mechanism](./Icing%20Mechanism.png) | ![Completed autonomous icing machine](./Icing%20Full%20Pic.png) |
+
+
+<video controls width="640">
+  <source src="https://raw.githubusercontent.com/TrevorWerbin/mechanical-portfolio/main/01.%20Autonomous%20Cookie%20Icing%20Machine/Demo%20-%20Printing%20HI.mp4" type="video/mp4">
+  Your browser does not support embedded video.
+</video>
