@@ -17,9 +17,7 @@
 
 <br clear="right">
 
-**Experience:** I designed several core mechanical components, including the hand mount and an elastic extension mechanism that restored the thumb to its neutral position. I modelled the mount in SolidWorks and iterated the components through functional testing.
-
-In my initial design, I proposed a component that slid onto the user’s thumb and attached to a string to move Digit. Testing showed that this defeated Digit’s role as an additional finger because it relied on the user’s thumb for actuation. I transitioned to wrist-based actuation, freeing all five fingers while enabling controlled movement of Digit. We used this design for the final iteration.
+**Experience:** I designed several core mechanical components, including the hand mount and an elastic extension mechanism that restored the thumb to its neutral position. I modelled the mount in SolidWorks and iterated the components through functional testing. In my initial design, I proposed a component that slid onto the user’s thumb and attached to a string to move Digit. Testing showed that this defeated Digit’s role as an additional finger because it relied on the user’s thumb for actuation. I transitioned to wrist-based actuation, freeing all five fingers while enabling controlled movement of Digit. We used this design for the final iteration.
 
 <table align="center" width="500">
   <tr>
