@@ -1,10 +1,10 @@
 **Skills:** SolidWorks, C++, Fabrication, DFM, Circuits, Machining Safety, 3D Printing
 
-**Objective:** Design, build, and program an autonomous cookie icing machine capable of applying a user designed multi-colour icing pattern to the surface of a cookie in <240 secs. This was the final project for ME101 in my 1B term.
+**Objective:** Design, build, and program an autonomous cookie icing machine capable of applying a user designed multi-color icing pattern to the surface of a cookie in <240 secs. This was the final project for ME101 in my 1B term.
 
 **Given Constraints:** Using a combination of C++, at least 4 3D printed and/or laser cut parts and at least 2 Vex IQ motors and sensors, build a product to solve an issue.
 
-**Outcome:** Worked on a four person team to design and build a dual-axis autonomous cookie icing machine consisting of VEX IQ electronics, a gantry system and tri-colour rotating syringe barrel, driven by a C++ program. We also created a custom HTML interface for users to draw custom designs to send to the machine. The machine met all engineering specifications including completing a decoration cycle in <240 secs, accommodate cookies up to 4 in in diameter and dispense 3 icing colors.
+**Outcome:** Worked on a four person team to design and build a dual-axis autonomous cookie icing machine consisting of VEX IQ electronics, a gantry system and tri-color rotating syringe barrel, driven by a C++ program. We also created a custom HTML interface for users to draw custom designs to send to the machine. The machine met all engineering specifications including completing a decoration cycle in <240 secs, accommodate cookies up to 4 in in diameter and dispense 3 icing colors.
 
 <table align="right" width="300">
   <tr>
