@@ -114,8 +114,11 @@ body.no-anim *, body.no-anim *::before, body.no-anim *::after {
   position: absolute; left: 50%; bottom: 8px;
   width: 0; height: 0;
   transform-style: preserve-3d;
-  transform: translateY(0px) rotateX(0deg) scale3d(var(--fit), var(--fit), var(--fit));
-  transition: transform 1.05s cubic-bezier(.32,.42,.22,1), transform-origin 1.05s cubic-bezier(.32,.42,.22,1);
+  /* Compensate the closed scale around the current drawer pivot. Keeping
+     this origin fixed through both motions avoids a second camera swing. */
+  transform-origin: 0 var(--pivot-y, 0px);
+  transform: translateY(calc((var(--fit) - 1) * var(--pivot-y, 0px))) rotateX(0deg) scale3d(var(--fit), var(--fit), var(--fit));
+  transition: transform 1.05s cubic-bezier(.32,.42,.22,1);
 }
 body.drawer-open .world {
   /* --s (per drawer) is the sheet's world-px extent above the anchor; the
@@ -127,7 +130,7 @@ body.drawer-open .world {
     translateY(calc(var(--s, 900) * var(--fit) * 1px + 162px - 100vh))
     rotateX(var(--tilt))
     scale3d(calc(var(--oscale) * var(--fit)), calc(var(--oscale) * var(--fit)), calc(var(--oscale) * var(--fit)));
-  transition: transform 1s cubic-bezier(.25,.5,.2,1), transform-origin 1s cubic-bezier(.25,.5,.2,1);
+  transition: transform 1s cubic-bezier(.25,.5,.2,1);
 }
 /* framing per drawer (hinge height differs) */
 body[data-open="experience"]           { --s: 712.9; }
@@ -1044,6 +1047,63 @@ body.drawer-open .about-sheet { opacity: 0; pointer-events: none; }
   }
   .drawer.open .ins-card > * { animation: none !important; }
 }
+
+/* ==========================================================================
+   Stationary reading surfaces — native layout outside the 3D camera
+   ========================================================================== */
+.readable-layer {
+  position: fixed; left: 0; width: 100%;
+  overflow: hidden; pointer-events: none; z-index: 14;
+}
+.stage > .readable-wall-layer {
+  position: absolute; top: 0; left: 0; z-index: -1;
+}
+.readable-sheet { z-index: 2; }
+.readable-sheet.readable-closing {
+  opacity: 0; transition: opacity .12s ease; pointer-events: none;
+}
+.readable-surface {
+  position: absolute; margin: 0; pointer-events: auto;
+  transform: none; transform-style: flat; transform-origin: 0 0;
+}
+.readable-surface > .readable-root {
+  position: absolute; inset: auto; left: 0; top: 0;
+  width: var(--surface-width); height: var(--surface-height);
+  margin: 0; transform: none; transform-style: flat; transition: none;
+  zoom: var(--surface-scale);
+}
+.readable-placeholder { visibility: hidden !important; pointer-events: none !important; }
+.readable-placeholder.readable-paper { visibility: visible !important; }
+.readable-sheet.readable-in-motion .ins-card {
+  background: transparent; border-color: transparent;
+  outline-color: transparent; box-shadow: none;
+}
+@keyframes readableRiseIn {
+  from { opacity: 0; top: calc(24px * var(--fscale)); }
+  to { opacity: 1; top: 0; }
+}
+.readable-sheet.open .ins-card > * {
+  position: relative; animation-name: readableRiseIn;
+}
+/* Positioned text must not intercept clicks over the floated media beside it. */
+.readable-sheet .story-photo,
+.readable-sheet .story-pair,
+.readable-sheet .project-video,
+.readable-sheet .cookie-media-row { z-index: 1; }
+.readable-home .cab-frame,
+.readable-home .drawer,
+.readable-home .drawer-slider { transform-style: flat; }
+.readable-home .drawer-slider,
+.readable-home .drawer-front,
+.readable-home .drawer-front:hover,
+.readable-home .drawer-front > .dymo,
+.readable-sheet .ins-head .dymo { transform: none; }
+.readable-home .drawer-interior,
+.readable-home .rail-l,
+.readable-home .rail-r,
+.readable-home .tray,
+.readable-home .cab-top,
+.readable-home .drawer-insert { display: none; }
 
 /* ==========================================================================
    LIST MODE — small screens: same DOM, flat presentation
