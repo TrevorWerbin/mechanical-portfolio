@@ -18,6 +18,7 @@
   }
 
   var drawers = Array.prototype.slice.call(document.querySelectorAll('.drawer'));
+  var inserts = drawers.map(function (d) { return d.querySelector('.drawer-insert'); });
   var lightbox = document.getElementById('lightbox');
   var lbVideo = lightbox ? lightbox.querySelector('video') : null;
   var lbImage = lightbox ? lightbox.querySelector('.lb-image') : null;
@@ -27,9 +28,197 @@
   function targetTop(d) { return TARGET_TOP; }
 
   function frontOf(d)  { return d.querySelector('.drawer-front'); }
-  function insertOf(d) { return d.querySelector('.drawer-insert'); }
+  function insertOf(d) { return inserts[drawers.indexOf(d)]; }
   function openDrawerEl() {
     return drawers.filter(function (d) { return d.classList.contains('open'); })[0] || null;
+  }
+
+  /* Read content outside the perspective tree. Native CSS zoom
+     lays out text at its displayed size rather than enlarging a rasterized
+     3D texture. Move the actual nodes so links, focus, scroll and video state
+     survive; the empty hidden shells retain the physical drawer geometry. */
+  var readableLayer = document.createElement('div');
+  readableLayer.className = 'readable-layer';
+  document.body.appendChild(readableLayer);
+  var readableWallLayer = document.createElement('div');
+  readableWallLayer.className = 'readable-layer readable-wall-layer';
+  document.getElementById('stage').appendChild(readableWallLayer);
+  var readableSurfaces = [];
+  var readableFrame = 0;
+  var fullscreenChangedAt = -Infinity;
+  var desktopLayout = window.matchMedia('(min-width: 861px)');
+  var homeSurfaces = [document.querySelector('.wall'), document.querySelector('.cabinet')];
+
+  function moveNode(node, parent, before) {
+    if (parent.moveBefore) parent.moveBefore(node, before || null);
+    else parent.insertBefore(node, before || null);
+  }
+
+  function physicalInsertOf(d) {
+    var insert = insertOf(d);
+    var surface = readableSurfaces.filter(function (s) { return s.element === insert; })[0];
+    return surface ? surface.shell : insert;
+  }
+
+  function positionReadable(surface, moving) {
+    var rect = surface.shell.getBoundingClientRect();
+    var stage = document.getElementById('stage').getBoundingClientRect();
+    var scale = rect.width / surface.width;
+    var pixelRatio = window.devicePixelRatio || 1;
+    function snap(value) { return Math.round(value * pixelRatio) / pixelRatio; }
+    readableLayer.style.top = stage.top + 'px';
+    readableLayer.style.height = stage.height + 'px';
+    readableWallLayer.style.height = stage.height + 'px';
+    surface.holder.style.left = (surface.follow ? rect.left : snap(rect.left)) + 'px';
+    surface.holder.style.top = (surface.follow ? rect.top - stage.top : snap(rect.top - stage.top)) + 'px';
+    surface.holder.style.width = rect.width + 'px';
+    surface.holder.style.height = rect.height + 'px';
+    surface.holder.style.setProperty('--surface-width', surface.width + 'px');
+    surface.holder.style.setProperty('--surface-height', surface.height + 'px');
+    surface.holder.style.setProperty('--surface-scale', scale);
+    surface.holder.style.transform = 'none';
+    surface.holder.style.visibility = '';
+    surface.holder.classList.toggle('readable-in-motion', !!moving && !!surface.drawer);
+    if (!moving || !surface.follow) return;
+
+    /* Follow the actual four corners of the animated 3D plane. Re-layout at
+       its current screen scale before projecting, so the browser never
+       magnifies a low-resolution page texture. At rest the projection is
+       removed; the same live page stays in place without a clarity swap. */
+    var points = surface.corners.map(function (corner) {
+      var r = corner.getBoundingClientRect();
+      return {x: r.left, y: r.top - stage.top};
+    });
+    if (surface.drawer) {
+      if (rect.height < .5) {
+        surface.holder.style.visibility = 'hidden';
+        return;
+      }
+      /* The empty physical shell paints the original tilted paper underneath.
+         Only its live contents use native screen dimensions, so typography
+         needs no GPU projection or clipping layer during the text reveal. */
+      surface.holder.style.setProperty('--surface-height', rect.height / scale + 'px');
+      return;
+    }
+    var p = points.map(function (point) {
+      return {x: point.x - points[0].x, y: point.y - points[0].y};
+    });
+    var dx1 = p[1].x - p[2].x, dx2 = p[3].x - p[2].x;
+    var dx3 = p[0].x - p[1].x + p[2].x - p[3].x;
+    var dy1 = p[1].y - p[2].y, dy2 = p[3].y - p[2].y;
+    var dy3 = p[0].y - p[1].y + p[2].y - p[3].y;
+    var determinant = dx1 * dy2 - dx2 * dy1;
+    if (!isFinite(determinant) || Math.abs(determinant) < .01) {
+      surface.holder.style.visibility = 'hidden';
+      return;
+    }
+    var g = (dx3 * dy2 - dx2 * dy3) / determinant;
+    var h = (dx1 * dy3 - dx3 * dy1) / determinant;
+    scale = Math.min(4, Math.max(.1,
+      Math.hypot(p[1].x, p[1].y) / surface.width,
+      Math.hypot(p[2].x - p[3].x, p[2].y - p[3].y) / surface.width));
+    var width = surface.width * scale, height = surface.height * scale;
+    var a = (p[1].x + g * p[1].x) / width;
+    var b = (p[3].x + h * p[3].x) / height;
+    var d = (p[1].y + g * p[1].y) / width;
+    var e = (p[3].y + h * p[3].y) / height;
+    surface.holder.style.left = points[0].x + 'px';
+    surface.holder.style.top = points[0].y + 'px';
+    surface.holder.style.width = width + 'px';
+    surface.holder.style.height = height + 'px';
+    surface.holder.style.setProperty('--surface-scale', scale);
+    surface.holder.style.transform = 'matrix3d(' +
+      [a,d,0,g/width,b,e,0,h/height,0,0,1,0,0,0,0,1].join(',') + ')';
+  }
+
+  function promoteReadable(element, drawer, follow) {
+    if (!element || !element.offsetWidth || !CSS.supports('zoom', '1')) return;
+    var shell = document.createElement('div');
+    shell.className = element.className + ' readable-placeholder';
+    shell.setAttribute('aria-hidden', 'true');
+    shell.inert = true;
+    var holder = document.createElement('div');
+    holder.className = drawer
+      ? drawer.className + ' readable-surface readable-sheet'
+      : 'readable-surface readable-home';
+    var surface = {element: element, shell: shell, holder: holder,
+                   width: element.offsetWidth, height: element.offsetHeight,
+                   follow: !!follow, drawer: drawer};
+    element.parentNode.insertBefore(shell, element);
+    if (surface.follow) {
+      if (drawer) {
+        shell.classList.add('readable-paper');
+        var paper = document.createElement('div');
+        paper.className = 'ins-card';
+        shell.appendChild(paper);
+      }
+      surface.corners = [[0,0],[100,0],[100,100],[0,100]].map(function (point) {
+        var corner = document.createElement('span');
+        corner.style.cssText = 'position:absolute;width:0;height:0;left:' + point[0] + '%;top:' + point[1] + '%;';
+        shell.appendChild(corner);
+        return corner;
+      });
+    }
+    (element === homeSurfaces[0] ? readableWallLayer : readableLayer).appendChild(holder);
+    positionReadable(surface);
+    element.classList.add('readable-root');
+    moveNode(element, holder);
+    readableSurfaces.push(surface);
+    return surface;
+  }
+
+  function restoreReadable(keep) {
+    window.cancelAnimationFrame(readableFrame);
+    var retained = [];
+    readableSurfaces.forEach(function (surface) {
+      if (keep && keep(surface)) {
+        retained.push(surface);
+        return;
+      }
+      var card = surface.element.querySelector('.ins-card');
+      var scroll = card ? card.scrollTop : 0;
+      surface.element.classList.remove('readable-root');
+      moveNode(surface.element, surface.shell.parentNode, surface.shell);
+      surface.shell.remove();
+      surface.holder.remove();
+      if (card) card.scrollTop = scroll;
+    });
+    readableSurfaces = retained;
+  }
+
+  function queueReadable() {
+    window.cancelAnimationFrame(readableFrame);
+    function settle() {
+      if (!desktopLayout.matches) {
+        document.body.classList.remove('scene-moving');
+        return;
+      }
+      if (isFullscreen()) return;
+      var world = document.getElementById('world');
+      if (document.readyState !== 'complete' || document.fonts.status === 'loading') {
+        readableFrame = window.requestAnimationFrame(settle);
+        return;
+      }
+      if (world.getAnimations({subtree: true}).some(function (a) { return a.playState === 'running'; })) {
+        readableSurfaces.forEach(function (surface) { if (surface.follow) positionReadable(surface, true); });
+        readableFrame = window.requestAnimationFrame(settle);
+        return;
+      }
+      var drawer = openDrawerEl();
+      if (!drawer) restoreReadable(function (surface) { return !surface.drawer; });
+      readableSurfaces.forEach(function (surface) {
+        positionReadable(surface, !!drawer && !surface.drawer && surface.follow);
+      });
+      if (drawer) {
+        if (!readableSurfaces.some(function (s) { return s.element === insertOf(drawer); })) {
+          promoteReadable(insertOf(drawer), drawer, true);
+        }
+      } else homeSurfaces.forEach(function (element) {
+        if (!readableSurfaces.some(function (s) { return s.element === element; })) promoteReadable(element);
+      });
+      document.body.classList.remove('scene-moving');
+    }
+    readableFrame = window.requestAnimationFrame(settle);
   }
 
   function applyOpen(d) {
@@ -48,7 +237,7 @@
       var originY = frame
         ? -(cabinetHeight - (d.offsetTop + d.offsetHeight / 2))
         : -380;
-      world.style.transformOrigin = '0px ' + originY.toFixed(0) + 'px';
+      world.style.setProperty('--pivot-y', originY.toFixed(0) + 'px');
     }
   }
 
@@ -79,27 +268,27 @@
     return Math.max(-600, Math.min(1600, s));
   }
 
-  /* Calibrate the framing, then replay the open animation into it.
-     Everything below runs synchronously — the user only sees the animation. */
+  /* Measure final framing, then replay the physical opening. The native page
+     and wall follow their real projected corners throughout that animation. */
   function calibrate(d) {
-    var ins = insertOf(d);
+    var ins = physicalInsertOf(d);
     var wasInstant = document.body.classList.contains('no-anim');
     document.body.classList.add('no-anim');
     applyOpen(d);
     void ins.offsetWidth;
     var s = solveOty(ins, d);
     if (s !== null) document.body.style.setProperty('--s', s.toFixed(1));
+    var sheet = promoteReadable(ins, d, true);
+    var wall = promoteReadable(homeSurfaces[0], null, true);
     /* reset instantly, restore motion, then open for real (animated) */
     clearOpen(d);
-    /* Calibration temporarily pivots around this drawer. Put the closed scene
-       back on the cabinet base before replaying, so each drawer starts from
-       the same camera position and the pivot change animates with the pan. */
     var world = document.getElementById('world');
-    if (world) world.style.transformOrigin = '0px 0px';
-    void ins.offsetWidth;
+    void world.offsetWidth;
     if (!wasInstant) document.body.classList.remove('no-anim');
-    void ins.offsetWidth;
+    void world.offsetWidth;
     applyOpen(d);
+    if (sheet) positionReadable(sheet, true);
+    if (wall) positionReadable(wall, true);
   }
 
   /* Verify the calibration against real (flushed) layout and nudge --oty
@@ -112,10 +301,10 @@
   }
 
   function recheck(d, delayFrames) {
-    var ins = insertOf(d);
+    var ins = physicalInsertOf(d);
     var tries = 0;
     function step() {
-      if (!d || !d.classList.contains('open') || tries++ > 8) return;
+      if (!desktopLayout.matches || !d || !d.classList.contains('open') || tries++ > 8) return;
       var top = ins.getBoundingClientRect().top;
       var err = targetTop(d) - top;
       if (Math.abs(err) < 3) return;
@@ -135,18 +324,20 @@
 
   function openDrawer(d, opts) {
     opts = opts || {};
+    if (desktopLayout.matches) document.body.classList.add('scene-moving');
+    restoreReadable();
     var current = openDrawerEl();
     if (current && current !== d) closeDrawer(current, { silent: true });
 
-    if (opts.instant || NOCAL) {
+    if (!desktopLayout.matches) {
+      applyOpen(d);
+    } else if (opts.instant || NOCAL) {
       applyOpen(d);
       if (!NOCAL) recheck(d, 1);
     } else {
       calibrate(d);
-      /* with motion disabled (test/measure) verify immediately; otherwise
-         let the animation finish, then settle the camera precisely */
-      if (document.body.classList.contains('no-anim')) recheck(d, 1);
-      else window.setTimeout(function () { recheck(d, 1); }, 1150);
+      /* The calibrated native page already has its final framing. Avoid a
+         delayed camera correction that could move the scene after opening. */
     }
 
     if (opts.updateHash !== false && history.replaceState) {
@@ -155,32 +346,41 @@
     if (!opts.silent) {
       window.setTimeout(function () {
         var ins = insertOf(d);
-        if (ins && document.activeElement !== ins) ins.focus({ preventScroll: true });
+        if (d === openDrawerEl() && ins && document.activeElement !== ins) ins.focus({ preventScroll: true });
       }, 1000);
     }
+    queueReadable();
   }
 
   function closeDrawer(d, opts) {
     opts = opts || {};
     if (!d || !d.classList.contains('open')) return;
 
+    if (desktopLayout.matches) document.body.classList.add('scene-moving');
+    /* Keep the sharp page attached to its moving shell during the closing
+       fade as well; restore it only once the physical drawer is shut. */
+    restoreReadable(function (surface) { return !!surface.drawer; });
+    readableSurfaces.forEach(function (surface) { surface.holder.classList.add('readable-closing'); });
+
     d.classList.remove('open');
     frontOf(d).setAttribute('aria-expanded', 'false');
     document.body.style.removeProperty('--s');
 
     if (!openDrawerEl()) {
-      /* Return the camera pivot to the cabinet base during the close motion.
-         Leaving a drawer-specific pivot behind shifts the scaled closed scene
-         differently for each drawer. */
-      var world = document.getElementById('world');
-      if (world) world.style.transformOrigin = '0px 0px';
+      /* Keep the pivot fixed. The closed CSS transform compensates its scale,
+         landing on the same home geometry without an origin interpolation. */
       document.body.classList.remove('drawer-open');
       document.body.removeAttribute('data-open');
       if (opts.updateHash !== false && history.replaceState) {
         history.replaceState(null, '', location.pathname + location.search);
       }
     }
+    if (desktopLayout.matches) {
+      var wall = promoteReadable(homeSurfaces[0], null, true);
+      if (wall) positionReadable(wall, true);
+    }
     if (!opts.silent) frontOf(d).focus({ preventScroll: true });
+    queueReadable();
   }
 
   function drawerFromHash() {
@@ -207,7 +407,7 @@
   document.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape') return;
     if (lightbox && lightbox.open) return; /* dialog handles its own Esc */
-    if (isFullscreen()) return; /* let the embedded player exit fullscreen first */
+    if (isFullscreen() || performance.now() - fullscreenChangedAt < 750) return;
     var d = openDrawerEl();
     if (d) closeDrawer(d);
   });
@@ -230,25 +430,44 @@
   }
   window.addEventListener('hashchange', syncFromHash);
   syncFromHash();
+  queueReadable();
 
-  /* An inline YouTube player can resize the viewport when entering or leaving
-     fullscreen. Keep the open drawer's calibrated camera position untouched
-     while its embedded video is present, so minimizing playback returns to the
-     same page position instead of triggering a new camera fit. */
+  /* Fullscreen playback keeps the native reading surface and the live iframe
+     in place. Ordinary window resizing measures the hidden 3D sheet instead,
+     so reframing never needs to close the drawer or reload the player. */
   var resizeTimer = null;
   function isFullscreen() {
     return !!(document.fullscreenElement || document.webkitFullscreenElement);
   }
+  function fullscreenChanged() {
+    fullscreenChangedAt = performance.now();
+    if (!isFullscreen()) queueReadable();
+  }
+  document.addEventListener('fullscreenchange', fullscreenChanged);
+  document.addEventListener('webkitfullscreenchange', fullscreenChanged);
   window.addEventListener('resize', function () {
     if (isFullscreen()) return;
     if (lightbox && lightbox.open) return;
-    var d = openDrawerEl();
-    if (!d) return;
-    if (d.querySelector('.project-video iframe')) return;
+    if (performance.now() - fullscreenChangedAt < 750) return;
     if (resizeTimer) window.clearTimeout(resizeTimer);
     resizeTimer = window.setTimeout(function () {
       var current = openDrawerEl();
-      if (current && !isFullscreen() && !current.querySelector('.project-video iframe')) recheck(current, 1);
+      if (isFullscreen() || performance.now() - fullscreenChangedAt < 750) return;
+      if (!desktopLayout.matches || !current) {
+        restoreReadable();
+        queueReadable();
+        return;
+      }
+      /* Measure the hidden physical sheet without moving the live player. */
+      var wasInstant = document.body.classList.contains('no-anim');
+      document.body.classList.add('no-anim');
+      applyOpen(current);
+      var s = solveOty(physicalInsertOf(current), current);
+      if (s !== null) document.body.style.setProperty('--s', s.toFixed(1));
+      readableSurfaces.forEach(function (surface) { positionReadable(surface); });
+      void document.getElementById('world').offsetWidth;
+      if (!wasInstant) document.body.classList.remove('no-anim');
+      queueReadable();
     }, 140);
   });
 
@@ -303,7 +522,8 @@
     window.setTimeout(function () {
       var out = { vw: window.innerWidth, vh: window.innerHeight,
                   docH: document.documentElement.scrollHeight };
-      var openIns = document.querySelector('.drawer.open .drawer-insert');
+      var activeDrawer = openDrawerEl();
+      var openIns = activeDrawer ? insertOf(activeDrawer) : null;
       if (openIns) {
         var r = openIns.getBoundingClientRect();
         var card = openIns.querySelector('.ins-card');
@@ -363,7 +583,7 @@
       /* axis probe: screen mapping of the sheet's local x / depth axes */
       var openDrawer = document.querySelector('.drawer.open');
       if (openDrawer) {
-        var card = openDrawer.querySelector('.ins-card');
+        var card = insertOf(openDrawer).querySelector('.ins-card');
         var cw = card.clientWidth, ch = card.clientHeight;
         var mk = function (lx, ly) {
           var d = document.createElement('div');
